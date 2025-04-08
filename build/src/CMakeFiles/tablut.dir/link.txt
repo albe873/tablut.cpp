@@ -1,2 +1,0 @@
-/usr/bin/ar qc libtablut.a CMakeFiles/tablut.dir/state.cpp.o CMakeFiles/tablut.dir/common.cpp.o CMakeFiles/tablut.dir/actions.cpp.o
-/usr/bin/ranlib libtablut.a
