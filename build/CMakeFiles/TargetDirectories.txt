@@ -1,0 +1,11 @@
+/home/francesco/Documents/Uni/ia/tablut.cpp/build/CMakeFiles/test.dir
+/home/francesco/Documents/Uni/ia/tablut.cpp/build/CMakeFiles/edit_cache.dir
+/home/francesco/Documents/Uni/ia/tablut.cpp/build/CMakeFiles/rebuild_cache.dir
+/home/francesco/Documents/Uni/ia/tablut.cpp/build/src/CMakeFiles/tablut.dir
+/home/francesco/Documents/Uni/ia/tablut.cpp/build/src/CMakeFiles/test.dir
+/home/francesco/Documents/Uni/ia/tablut.cpp/build/src/CMakeFiles/edit_cache.dir
+/home/francesco/Documents/Uni/ia/tablut.cpp/build/src/CMakeFiles/rebuild_cache.dir
+/home/francesco/Documents/Uni/ia/tablut.cpp/build/test/CMakeFiles/tablut_tests.dir
+/home/francesco/Documents/Uni/ia/tablut.cpp/build/test/CMakeFiles/test.dir
+/home/francesco/Documents/Uni/ia/tablut.cpp/build/test/CMakeFiles/edit_cache.dir
+/home/francesco/Documents/Uni/ia/tablut.cpp/build/test/CMakeFiles/rebuild_cache.dir
