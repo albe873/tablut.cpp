@@ -8,13 +8,11 @@
 
 class Action {
 private:
-    inline bool isEmpty(cord c, State s);
-    inline bool isThrone(cord c, State s);
-    inline bool isCamp(cord c, State s);
-    inline bool checksIfValid(cord start, cord dest, Piece piece, State s);
+    static inline bool checksIfValid(cord start, cord dest, Piece piece, State s);
 
 public:
-    std::vector<Move> getActions(State s);
+    static std::vector<Move> getActions(State s);
+    static bool isPossibleToMove(State s);
 };
 
 #endif // ACTIONS_H
