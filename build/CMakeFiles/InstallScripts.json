@@ -1,9 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/francesco/Documents/Uni/ia/tablut.cpp/build/cmake_install.cmake",
-		"/home/francesco/Documents/Uni/ia/tablut.cpp/build/src/cmake_install.cmake",
-		"/home/francesco/Documents/Uni/ia/tablut.cpp/build/test/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
