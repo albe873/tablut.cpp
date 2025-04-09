@@ -24,24 +24,23 @@ inline std::string toString(Piece piece) {
 }
 
 // --- Static definitions ---
-static const int8_t size = 9;
 
-const std::vector<cord> State::camps = {
-    {3, 0}, {4, 0}, {5, 0}, {4, 1}, // camp on top
-    {0, 3}, {0, 4}, {0, 5}, {1, 4}, // camp on left
-    {8, 3}, {8, 4}, {8, 5}, {7, 4}, // camp on right
-    {3, 8}, {4, 8}, {5, 8}, {4, 7}  // camp on bottom
+const bool State::campsMask[size][size] = { 
+    {false, false, false, true,  true,  true,  false, false, false},
+    {false, false, false, false, true,  false, false, false, false},
+    {false, false, false, false, false, false, false, false, false},
+    {true,  false, false, false, false, false, false, false, true},
+    {true,  true,  false, false, false, false, false, true,  true},
+    {true,  false, false, false, false, false, false, false, true},
+    {false, false, false, false, false, false, false, false, false},
+    {false, false, false, false, true,  false, false, false, false},
+    {false, false, false, true,  true,  true,  false, false, false}
 };
+
 const cord State::throne = {4, 4}; // King position
 const std::vector<cord> State::whitePieces = {
     {4, 2}, {4, 3}, {4, 5}, {4, 6}, // vertical
     {2, 4}, {3, 4}, {5, 4}, {6, 4}  // horizontal
-};
-const std::vector<cord> State::escapes = {
-    {1, 0}, {2, 0}, {6, 0}, {7, 0}, //escapes on top
-    {0, 1}, {0, 2}, {0, 6}, {0, 7}, //escapes on left
-    {8, 1}, {8, 2}, {8, 6}, {8, 7}, //escapes on right
-    {1, 8}, {2, 8}, {6, 8}, {7, 8}  //escapes on bottom
 };
 
 // --- Static methods ---
@@ -49,11 +48,9 @@ inline bool State::isThrone(cord c) {
     return c == State::throne;
 }
 inline bool State::isCamp(cord c) {
-    for (cord camp : State::camps) {
-        if (c == camp)
-            return true;
-    }
-    return false;
+    return  c.x >= 0 && c.x < size && 
+            c.y >= 0 && c.y < size && 
+            State::campsMask[c.y][c.x];
 }
 
 
@@ -61,16 +58,16 @@ inline bool State::isCamp(cord c) {
 
 State::State() {
     turn = Turn::White;
+
+    // Initialize the board with pieces
     for (int8_t y = 0; y < size; y++) {
         for (int8_t x = 0; x < size; x++) {
-            board[y][x] = Piece::Empty;
+            if (campsMask[y][x]) {
+                board[y][x] = Piece::Black;
+            }
+            else
+                board[y][x] = Piece::Empty;
         }
-    }
-    // Initialize the board with pieces
-
-    // Black pieces
-    for (cord camp : camps) {
-        board[camp.y][camp.x] = Piece::Black;
     }
 
     // White pieces

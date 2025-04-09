@@ -31,29 +31,26 @@ inline std::string toString(Turn turn);
 
 
 class State {
-private:
-    Piece board[9][9];
-    Turn turn;
 public:
+    static const int8_t size = 9;
+    Piece board[size][size];
+    Turn turn;
 
     // Static constants
-    static const int8_t size = 9;
-    static const std::vector<cord> camps;
     static const std::vector<cord> whitePieces;
-    static const std::vector<cord> escapes;
     static const cord throne;
+    static const bool campsMask[size][size];
 
     // Static methods
     static bool State::isThrone(cord c);
     static bool State::isCamp(cord c);
 
-
     // Constructor
     State();
-    State(const Piece (&board)[9][9], Turn turn);
+    State(const Piece (&board)[size][size], Turn turn);
 
     // Getters
-    const Piece (&getBoard() const)[9][9];
+    const Piece (&getBoard() const)[size][size];
     Turn getTurn() const;
     void setTurn(Turn newTurn);
     void setPiece(cord c, Piece piece);
