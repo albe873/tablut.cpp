@@ -1,8 +1,5 @@
 // common.cpp
 
-#include <cstdint>
-#include <vector>
-
 #include "include/common.h"
 
 // cord
@@ -32,4 +29,9 @@ cord Move::getTo() const { return to; }
 // --- Utilities ---
 cord Move::calculateNewCord(cord& start, cord& direction) {
     return cord(start.x + direction.x, start.y + direction.y);
+}
+
+std::string Move::toString() {
+    return "Move from (" + std::to_string(from.x) + ", " + std::to_string(from.y) + 
+        ") to (" + std::to_string(to.x) + ", " + std::to_string(to.y) + ")";
 }

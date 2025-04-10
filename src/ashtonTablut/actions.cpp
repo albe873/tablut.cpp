@@ -2,6 +2,7 @@
 
 #include "actions.h"
 
+// Only check for current position, not the entire line
 inline bool Action::checksIfValid(cord start, cord dest, Piece piece, State s) {
     // Check if the piece is NOT empty or the throne
     if (State::isThrone(dest) || !s.isEmpty(dest))
@@ -61,7 +62,7 @@ std::vector<Move> Action::getActions(State s) {
                         break;
                     
                     moves.push_back(Move(start, dest));
-                    y--;
+                    newY--;
                 }
 
                 // Down

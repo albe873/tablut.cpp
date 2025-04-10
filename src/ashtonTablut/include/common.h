@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <string>
 
 struct cord {
     int8_t x;
@@ -35,6 +36,7 @@ public:
     cord getFrom() const;
     cord getTo() const;
     static cord calculateNewCord(cord& start, cord& direction);
+    std::string toString();
 };
 
 #endif // COMMON_H

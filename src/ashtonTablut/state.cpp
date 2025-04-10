@@ -2,7 +2,7 @@
 
 #include "state.h"
 
-inline std::string toString(Turn turn) {
+std::string toString(Turn turn) {
     switch (turn) {
         case Turn::Black: return "Black";
         case Turn::White: return "White";
@@ -13,7 +13,7 @@ inline std::string toString(Turn turn) {
     }
 }
 
-inline std::string toString(Piece piece) {
+std::string toString(Piece piece) {
     switch (piece) {
         case Piece::Empty: return "0";
         case Piece::Black: return "B";
@@ -44,10 +44,10 @@ const std::vector<cord> State::whitePieces = {
 };
 
 // --- Static methods ---
-inline bool State::isThrone(cord c) {
+bool State::isThrone(cord c) {
     return c == State::throne;
 }
-inline bool State::isCamp(cord c) {
+bool State::isCamp(cord c) {
     return  c.x >= 0 && c.x < size && 
             c.y >= 0 && c.y < size && 
             State::campsMask[c.y][c.x];
