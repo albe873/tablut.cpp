@@ -44,8 +44,8 @@ public:
     static const bool campsMask[size][size];
 
     // Static methods
-    static bool isThrone(cord c);
-    static bool isCamp(cord c);
+    static bool isThrone(const cord& c);
+    static bool isCamp(const cord& c);
 
     // Constructor
     State();
@@ -58,14 +58,14 @@ public:
     void setTurn(Turn newTurn);
 
     // pieces
-    void removePiece(cord c);
-    void movePiece(cord from, cord to);
+    void removePiece(const cord& c);
+    void movePiece(const cord& from, const cord& to);
     //void setPiece(cord c, Piece piece);
-    Piece getPiece(cord c) const;
+    Piece getPiece(const cord& c) const;
 
 
     // Utilities
-    bool isEmpty(cord c);
+    bool isEmpty(const cord& c) const;
     
     // State History
     bool isHistoryRepeated();
@@ -75,7 +75,7 @@ public:
     std::string boardString() const;
 
     State clone() const;
-    bool isEqual(const State& other) const;
+    bool equals(const State& other) const;
     int softHash() const;
     int hash() const;
 };

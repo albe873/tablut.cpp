@@ -44,17 +44,17 @@ const std::vector<cord> State::whitePieces = {
 };
 
 // --- Static methods ---
-bool State::isThrone(cord c) {
+bool State::isThrone(const cord& c) {
     return c == State::throne;
 }
-bool State::isCamp(cord c) {
+bool State::isCamp(const cord& c) {
     return  c.x >= 0 && c.x < size && 
             c.y >= 0 && c.y < size && 
             State::campsMask[c.y][c.x];
 }
 
 
-// --- Contructors ---
+// ------ Contructors -------
 
 State::State() {
     turn = Turn::White;
@@ -92,7 +92,10 @@ State::State(const Piece (&board)[9][9], Turn turn) {
     std::memcpy(this->board, board, sizeof(this->board));
     this->hashHistory = std::vector<int>();
 }
-// --- Getters and setters ---
+
+
+
+// ------ Interact functions ------
 
 const Piece (&State::getBoard() const)[9][9] {
     return board;
@@ -105,28 +108,28 @@ void State::setTurn(Turn newTurn) {
     turn = newTurn;
 }
 
-//void State::setPiece(cord c, Piece piece) {
-//    if (c.x >= 0 && c.x < size && c.y >= 0 && c.y < size) {
-//        board[c.y][c.x] = piece;
-//    }
-//}
-void State::removePiece(cord c) {
+void State::removePiece(const cord& c) {
     board[c.y][c.x] = Piece::Empty;
     clearHistory();
 }
-void State::movePiece(cord from, cord to) {
+void State::movePiece(const cord& from, const cord& to) {
     board[to.y][to.x] = board[from.y][from.x];
     board[from.y][from.x] = Piece::Empty;
 }
 
-Piece State::getPiece(cord c) const {
+Piece State::getPiece(const cord& c) const {
     if (c.x >= 0 && c.x < size && c.y >= 0 && c.y < size) {
         return board[c.y][c.x];
     }
     return (Piece) -1; // Return -1 for invalid positions
 }
 
-// --- History ---
+bool State::isEmpty(const cord& c) const {
+    return board[c.y][c.x] == Piece::Empty;
+}
+
+
+// ------ History ------
 
 bool State::isHistoryRepeated() {
     int hash = softHash();
@@ -143,12 +146,8 @@ void State::clearHistory() {
 }
 
 
-// --- Utilities ---
 
-bool State::isEmpty(cord c) {
-    return board[c.y][c.x] == Piece::Empty;
-}
-
+// ------ Utilities ------
 
 // Utility to print the board
 std::string State::boardString() const {
@@ -162,12 +161,17 @@ std::string State::boardString() const {
     return result;
 }
 
+
 // Utility to clone the state
 State State::clone() const {
     return State(this->board, this->turn, this->hashHistory);
 }
 
-bool State::isEqual(const State& other) const {
+
+
+// ------ equals and hash functions ------
+
+bool State::equals(const State& other) const {
     if (this->turn != other.turn) {
         return false;
     }

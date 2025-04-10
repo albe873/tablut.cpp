@@ -27,7 +27,7 @@ cord Move::getFrom() const { return from; }
 cord Move::getTo() const { return to; }
 
 // --- Utilities ---
-cord Move::calculateNewCord(cord& start, cord& direction) {
+cord Move::calculateNewCord(const cord& start, const cord& direction) {
     return cord(start.x + direction.x, start.y + direction.y);
 }
 

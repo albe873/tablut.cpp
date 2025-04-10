@@ -147,13 +147,16 @@ TEST(StateTest, ClearHistoryTest) {
 TEST(StateTest, CloneAndIsEqualTest) {
     std::cout << "Clone and isEqual test" << std::endl;
     State state;
+    state.removePiece(cord(4, 4));
     State cloned = state.clone();
 
-    ASSERT_TRUE(state.isEqual(cloned));
+    ASSERT_TRUE(state.equals(cloned));
+    ASSERT_TRUE(state.getPiece(cord(4, 4)) == Piece::Empty);
+    ASSERT_TRUE(cloned.getPiece(cord(4, 4)) == Piece::Empty);
 
     // Change something in the clone
-    cloned.removePiece({4,4});
-    ASSERT_FALSE(state.isEqual(cloned));
+    cloned.removePiece(cord(3, 4));
+    ASSERT_FALSE(state.equals(cloned));
 }
 
 TEST(StateTest, CloneIndependenceTest) {

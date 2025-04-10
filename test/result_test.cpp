@@ -5,14 +5,24 @@
 
 TEST(ResultTest, InitialState) {
     State initialState;
-    Move move(cord(4, 3), cord(4, 2));
+    Move move(cord(4, 3), cord(7, 3));
     State result;
     result = Result::applyAction(initialState, move);
-
     initialState.movePiece(move.getFrom(), move.getTo());
-    initialState.setTurn(Turn::Black);
+
+    std::cout << "Result State 1:\n" << result.boardString() << std::endl;
+
+    ASSERT_TRUE(result.getTurn() == Turn::Black);
+
+    move = Move(cord(0, 3), cord(6, 3));
+    result = Result::applyAction(result, move);
+    initialState.movePiece(move.getFrom(), move.getTo());
+    initialState.removePiece(cord(7, 3));
+
+    ASSERT_TRUE(result.getTurn() == Turn::White);
+
     std::cout << "Initial State:\n" << initialState.boardString() << std::endl;
-    std::cout << "Result State:\n" << result.boardString() << std::endl;
+    std::cout << "Result State 2:\n" << result.boardString() << std::endl;
     EXPECT_EQ(initialState.softHash(), result.softHash());
 }
 

@@ -3,7 +3,7 @@
 #include "result.h"
 
 
-inline bool checkKingCapture(State s, cord c, cord dir) {
+inline bool checkKingCapture(State& s, const cord& c, const cord& dir) {
     // if the king is on the throne, it needs to be surrounded by 4 black soldiers
     if (State::isThrone(c)) {
         for (cord dir : Directions::ALL_DIRECTIONS) {
@@ -53,7 +53,7 @@ inline bool checkKingCapture(State s, cord c, cord dir) {
 
 
 
-inline void checkCaptureWhite(State s, cord c, cord dir) {
+inline void checkCaptureWhite(State& s, const cord& c, const cord& dir) {
     cord captureCord = Move::calculateNewCord(c, dir);
 
     // piece
@@ -78,8 +78,11 @@ inline void checkCaptureWhite(State s, cord c, cord dir) {
     }
 }
 
-inline bool checkCaptureBlack(State s, cord c, cord dir) {
+inline bool checkCaptureBlack(State& s, const cord& c, const cord& dir) {
+    std::cout << "checkCaptureBlack" << std::endl;
+    std::cout << "cord: (" << std::to_string(c.x) << ", " << std::to_string(c.y) << ")" << std::endl;
     cord captureCord = Move::calculateNewCord(c, dir);
+    std::cout << "capture cord: (" << std::to_string(captureCord.x) << ", " << std::to_string(captureCord.y) << ")" << std::endl;
 
     // black
     // white
@@ -94,6 +97,8 @@ inline bool checkCaptureBlack(State s, cord c, cord dir) {
     // else normal capture check
     if (s.getPiece(captureCord) == Piece::White) {
         cord checkCord = Move::calculateNewCord(captureCord, dir);
+        std::cout << "checkCord cord: (" << std::to_string(checkCord.x) << ", " << std::to_string(checkCord.y) << ")" << std::endl;
+
         
         Piece checkPiece = s.getPiece(checkCord);
 
@@ -105,6 +110,8 @@ inline bool checkCaptureBlack(State s, cord c, cord dir) {
         if (checkPiece == Piece::Black || s.isThrone(checkCord) || s.isCamp(checkCord)) {
             // capture the piece
             s.removePiece(captureCord);
+            std::cout << "piece captured!!!" << std::endl;
+            std::cout << s.boardString() << std::endl;
         }
     }
 
@@ -113,57 +120,53 @@ inline bool checkCaptureBlack(State s, cord c, cord dir) {
 
 
 
-State Result::applyAction(State s, Move m) {
-    
-    // clone the state
-    State newState = s.clone();
-
+State Result::applyAction(State state, const Move& m) {
     // get the piece to move
-    Piece toMove = newState.getPiece(m.getFrom());
+    Piece toMove = state.getPiece(m.getFrom());
     
     // move the piece
-    newState.movePiece(m.getFrom(), m.getTo());
+    state.movePiece(m.getFrom(), m.getTo());
 
     // check if the piece is a king && if is on an escape tile
     if (toMove == Piece::King && (m.getTo().x == 0 || m.getTo().x == 8 || m.getTo().y == 0 || m.getTo().y == 8)) {
         // if the king is on the edges, it wins
         // note: already checked if m.getTo() is a valid position, so only escapes tiles are possible
-        newState.setTurn(Turn::WhiteWin);
-        return newState;
+        state.setTurn(Turn::WhiteWin);
+        return state;
     }
 
     // captures checks
     if (toMove == Piece::Black) {
         for (cord dir : Directions::ALL_DIRECTIONS) {
             // return true if the king is captured
-            if (checkCaptureBlack(newState, m.getTo(), dir)) {
-                newState.setTurn(Turn::BlackWin);
-                return newState;
+            if (checkCaptureBlack(state, m.getTo(), dir)) {
+                state.setTurn(Turn::BlackWin);
+                return state;
             }
         }
 
         // if the piece is black, change the turn to white
-        newState.setTurn(Turn::White);
+        state.setTurn(Turn::White);
 
         // check if the enemy cannot move
-        if (!Action::isPossibleToMove(newState))
-            newState.setTurn(Turn::WhiteWin);
+        if (!Action::isPossibleToMove(state))
+            state.setTurn(Turn::WhiteWin);
     } else {
         for (cord dir : Directions::ALL_DIRECTIONS) {
-            checkCaptureWhite(newState, m.getTo(), dir);
+            checkCaptureWhite(state, m.getTo(), dir);
         }
 
         // if the piece is white, change the turn to black
-        newState.setTurn(Turn::Black);
+        state.setTurn(Turn::Black);
 
         // check if the enemy cannot move
-        if (!Action::isPossibleToMove(newState))
-            newState.setTurn(Turn::BlackWin);
+        if (!Action::isPossibleToMove(state))
+            state.setTurn(Turn::BlackWin);
     }
 
     // check if the game is a draw
-    if (newState.isHistoryRepeated())
-        newState.setTurn(Turn::Draw);
+    if (state.isHistoryRepeated())
+        state.setTurn(Turn::Draw);
     
-    return newState;
+    return state;
 }

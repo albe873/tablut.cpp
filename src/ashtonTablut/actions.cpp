@@ -3,7 +3,7 @@
 #include "actions.h"
 
 // Only check for current position, not the entire line
-inline bool Action::checksIfValid(cord start, cord dest, Piece piece, State s) {
+inline bool Action::checksIfValid(const cord& start, const cord& dest, Piece piece, const State& s) {
     // Check if the piece is NOT empty or the throne
     if (State::isThrone(dest) || !s.isEmpty(dest))
         return false;
@@ -26,7 +26,7 @@ inline bool Action::checksIfValid(cord start, cord dest, Piece piece, State s) {
 }
 
 
-std::vector<Move> Action::getActions(State s) {
+std::vector<Move> Action::getActions(const State& s) {
     std::vector<Move> moves;
     Turn turn = s.getTurn();
 
@@ -115,7 +115,7 @@ std::vector<Move> Action::getActions(State s) {
 }
 
 
-bool Action::isPossibleToMove(State s) {
+bool Action::isPossibleToMove(const State& s) {
     Turn turn = s.getTurn();
     Piece rightPiece = (turn == Turn::Black) ? Piece::Black : Piece::White;
 

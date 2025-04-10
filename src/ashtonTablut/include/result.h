@@ -10,7 +10,7 @@
 class Result {
     public:
         // assumption: the move is valid
-        static State applyAction(State s, Move m);
+        static State applyAction(State s, const Move& m);
 };
 
 #endif // RESULT_H

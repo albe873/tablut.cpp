@@ -40,7 +40,7 @@ public:
     cord getTo() const;
 
     // --- Utilities ---
-    static cord calculateNewCord(cord& start, cord& direction);
+    static cord calculateNewCord(const cord& start, const cord& direction);
     std::string toString();
 
     // --- Operators ---
