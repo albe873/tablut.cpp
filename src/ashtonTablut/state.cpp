@@ -77,13 +77,20 @@ State::State() {
 
     // King
     board[throne.y][throne.x] = Piece::King;
+    
+    this->hashHistory = std::vector<int>();
 }
 
+State::State(const Piece (&board)[9][9], Turn turn, std::vector<int> hashHistory) {
+    this->turn = turn;
+    std::memcpy(this->board, board, sizeof(this->board));
+    this->hashHistory = std::vector<int>(hashHistory.begin(), hashHistory.end());
+}
 State::State(const Piece (&board)[9][9], Turn turn) {
     this->turn = turn;
     std::memcpy(this->board, board, sizeof(this->board));
+    this->hashHistory = std::vector<int>();
 }
-
 // --- Getters and setters ---
 
 const Piece (&State::getBoard() const)[9][9] {
@@ -97,12 +104,19 @@ void State::setTurn(Turn newTurn) {
     turn = newTurn;
 }
 
-void State::setPiece(cord c, Piece piece) {
-    if (c.x >= 0 && c.x < size && c.y >= 0 && c.y < size) {
-        board[c.y][c.x] = piece;
-    }
+//void State::setPiece(cord c, Piece piece) {
+//    if (c.x >= 0 && c.x < size && c.y >= 0 && c.y < size) {
+//        board[c.y][c.x] = piece;
+//    }
+//}
+void State::removePiece(cord c) {
+    board[c.y][c.x] = Piece::Empty;
+    clearHistory();
 }
-
+void State::movePiece(cord from, cord to) {
+    board[to.y][to.x] = board[from.y][from.x];
+    board[from.y][from.x] = Piece::Empty;
+}
 
 Piece State::getPiece(cord c) const {
     if (c.x >= 0 && c.x < size && c.y >= 0 && c.y < size) {
@@ -110,6 +124,23 @@ Piece State::getPiece(cord c) const {
     }
     return (Piece) -1; // Return -1 for invalid positions
 }
+
+// --- History ---
+
+bool State::isHistoryRepeated() {
+    int hash = softHash();
+    for (int i = 0; i < hashHistory.size(); i++) {
+        if (hashHistory[i] == hash)
+            return true;
+    }
+    // If not found, add to history
+    hashHistory.push_back(hash);
+    return false;  
+}
+void State::clearHistory() {
+    hashHistory.clear();
+}
+
 
 // --- Utilities ---
 
@@ -119,15 +150,6 @@ bool State::isEmpty(cord c) {
 
 
 // Utility to print the board
-void State::printBoard() {
-    for (int y = 0; y < size; y++) {
-        for (int x = 0; x < size; x++) {
-            std::cout << toString(board[y][x]) << ' ';
-        }
-        std::cout << '\n';
-    }
-}
-
 std::string State::boardString() const {
     std::string result;
     for (int y = 0; y < size; y++) {
@@ -141,7 +163,7 @@ std::string State::boardString() const {
 
 // Utility to clone the state
 State State::clone() const {
-    return State(this->board, this->turn);
+    return State(this->board, this->turn, this->hashHistory);
 }
 
 bool State::isEqual(const State& other) const {
@@ -159,7 +181,8 @@ bool State::isEqual(const State& other) const {
     return true;
 }
 
-int State::hash() const {
+// Hash only the board, to use for History
+int State::softHash() const {
     int hash = 0;
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
@@ -169,3 +192,8 @@ int State::hash() const {
     return hash;
 }
 
+int State::hash() const {
+    int hash = softHash();
+    hash ^= static_cast<int>(turn) * 1000;
+    return hash;
+}

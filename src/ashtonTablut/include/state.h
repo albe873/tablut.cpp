@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <cstring>
+#include <algorithm>
 
 #include "common.h"
 
@@ -35,6 +36,7 @@ public:
     static const int8_t size = 9;
     Piece board[size][size];
     Turn turn;
+    std::vector<int> hashHistory;
 
     // Static constants
     static const std::vector<cord> whitePieces;
@@ -42,29 +44,39 @@ public:
     static const bool campsMask[size][size];
 
     // Static methods
-    static bool State::isThrone(cord c);
-    static bool State::isCamp(cord c);
+    static bool isThrone(cord c);
+    static bool isCamp(cord c);
 
     // Constructor
     State();
     State(const Piece (&board)[size][size], Turn turn);
+    State(const Piece (&board)[size][size], Turn turn, std::vector<int> hashHistory);
 
     // Getters
     const Piece (&getBoard() const)[size][size];
     Turn getTurn() const;
     void setTurn(Turn newTurn);
-    void setPiece(cord c, Piece piece);
+
+    // pieces
+    void removePiece(cord c);
+    void movePiece(cord from, cord to);
+    //void setPiece(cord c, Piece piece);
     Piece getPiece(cord c) const;
+
 
     // Utilities
     bool isEmpty(cord c);
     
+    // State History
+    bool isHistoryRepeated();
+    void clearHistory();
+    
     // Print Utilities
-    void printBoard();
     std::string boardString() const;
 
     State clone() const;
     bool isEqual(const State& other) const;
+    int softHash() const;
     int hash() const;
 };
 

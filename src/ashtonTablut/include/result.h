@@ -8,6 +8,7 @@
 
 class Result {
     public:
+        // assumption: the move is valid
         State applyAction(State s, Move m);
 };
 

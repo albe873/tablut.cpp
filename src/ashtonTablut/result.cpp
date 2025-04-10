@@ -23,7 +23,7 @@ inline void checkCaptureWhite(State s, cord c, cord dir) {
         
         if (checkPiece == Piece::White || s.isThrone(checkCord) || s.isCamp(checkCord)) {
             // capture the piece
-            s.setPiece(captureCord, Piece::Empty);
+            s.removePiece(captureCord);
         }
     }
 }
@@ -54,7 +54,7 @@ inline bool checkCaptureBlack(State s, cord c, cord dir) {
         
         if (checkPiece == Piece::Black || s.isThrone(checkCord) || s.isCamp(checkCord)) {
             // capture the piece
-            s.setPiece(captureCord, Piece::Empty);
+            s.removePiece(captureCord);
         }
     }
 
@@ -112,7 +112,6 @@ inline bool checkKingCapture(State s, cord c, cord dir) {
     return false;
 }
 
-
 State Result::applyAction(State s, Move m) {
     
     // clone the state
@@ -122,8 +121,7 @@ State Result::applyAction(State s, Move m) {
     Piece toMove = newState.getPiece(m.getFrom());
     
     // move the piece
-    newState.setPiece(m.getFrom(), Piece::Empty);
-    newState.setPiece(m.getTo(), toMove);
+    newState.movePiece(m.getFrom(), m.getTo());
 
     // check if the piece is a king && if is on an escape tile
     if (toMove == Piece::King && (m.getTo().x == 0 || m.getTo().x == 8 || m.getTo().y == 0 || m.getTo().y == 8)) {
@@ -163,7 +161,8 @@ State Result::applyAction(State s, Move m) {
     }
 
     // check if the game is a draw
-    // TODO
-
+    if (newState.isHistoryRepeated())
+        newState.setTurn(Turn::Draw);
+    
     return newState;
 }
