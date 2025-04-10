@@ -31,12 +31,21 @@ private:
     cord from;
     cord to;
 public:
+    // --- Constructor ---
     Move();
     Move(cord from, cord to);
+    
+    // --- Getters ---
     cord getFrom() const;
     cord getTo() const;
+
+    // --- Utilities ---
     static cord calculateNewCord(cord& start, cord& direction);
     std::string toString();
+
+    // --- Operators ---
+    bool operator==(const Move& other) const;
+    bool equals(const Move& other) const;
 };
 
 #endif // COMMON_H

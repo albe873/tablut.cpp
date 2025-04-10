@@ -1,67 +1,6 @@
 // result.cpp
 
 #include "result.h"
-#include "actions.h"
-
-inline void checkCaptureWhite(State s, cord c, cord dir) {
-    cord captureCord = Move::calculateNewCord(c, dir);
-
-    // piece
-    // enemy
-    // piece or throne or camp
-    // -> capture
-
-    if (s.getPiece(captureCord) == Piece::Black) {
-        cord checkCord = Move::calculateNewCord(captureCord, dir);
-        
-        Piece checkPiece = s.getPiece(checkCord);
-
-        // check if the piece is empty or cord invalid (0 and -1)
-        if ( (int8_t) checkPiece < 1)
-            return;
-
-        
-        if (checkPiece == Piece::White || s.isThrone(checkCord) || s.isCamp(checkCord)) {
-            // capture the piece
-            s.removePiece(captureCord);
-        }
-    }
-}
-
-inline bool checkCaptureBlack(State s, cord c, cord dir) {
-    cord captureCord = Move::calculateNewCord(c, dir);
-
-    // black
-    // white
-    // black or throne or camp
-    // -> capture
-
-    // if toCapture is king, use the function to check if the king is captured
-    if (s.getPiece(captureCord) == Piece::King) {
-        return checkKingCapture(s, captureCord, dir);
-    }
-
-    // else normal capture check
-    if (s.getPiece(captureCord) == Piece::White) {
-        cord checkCord = Move::calculateNewCord(captureCord, dir);
-        
-        Piece checkPiece = s.getPiece(checkCord);
-
-        // check if the piece is empty or cord invalid (0 and -1)
-        if ( (int8_t) checkPiece < 1)
-            return;
-
-        
-        if (checkPiece == Piece::Black || s.isThrone(checkCord) || s.isCamp(checkCord)) {
-            // capture the piece
-            s.removePiece(captureCord);
-        }
-    }
-
-    return false;
-}
-
-
 
 
 inline bool checkKingCapture(State s, cord c, cord dir) {
@@ -111,6 +50,68 @@ inline bool checkKingCapture(State s, cord c, cord dir) {
 
     return false;
 }
+
+
+
+inline void checkCaptureWhite(State s, cord c, cord dir) {
+    cord captureCord = Move::calculateNewCord(c, dir);
+
+    // piece
+    // enemy
+    // piece or throne or camp
+    // -> capture
+
+    if (s.getPiece(captureCord) == Piece::Black) {
+        cord checkCord = Move::calculateNewCord(captureCord, dir);
+        
+        Piece checkPiece = s.getPiece(checkCord);
+
+        // check if the piece is empty or cord invalid (0 and -1)
+        if ( (int8_t) checkPiece < 1)
+            return;
+
+        
+        if (checkPiece == Piece::White || s.isThrone(checkCord) || s.isCamp(checkCord)) {
+            // capture the piece
+            s.removePiece(captureCord);
+        }
+    }
+}
+
+inline bool checkCaptureBlack(State s, cord c, cord dir) {
+    cord captureCord = Move::calculateNewCord(c, dir);
+
+    // black
+    // white
+    // black or throne or camp
+    // -> capture
+
+    // if toCapture is king, use the function to check if the king is captured
+    if (s.getPiece(captureCord) == Piece::King) {
+        return checkKingCapture(s, captureCord, dir);
+    }
+
+    // else normal capture check
+    if (s.getPiece(captureCord) == Piece::White) {
+        cord checkCord = Move::calculateNewCord(captureCord, dir);
+        
+        Piece checkPiece = s.getPiece(checkCord);
+
+        // check if the piece is empty or cord invalid (0 and -1)
+        if ( (int8_t) checkPiece < 1)
+            return false;
+
+        
+        if (checkPiece == Piece::Black || s.isThrone(checkCord) || s.isCamp(checkCord)) {
+            // capture the piece
+            s.removePiece(captureCord);
+        }
+    }
+
+    return false;
+}
+
+
 
 State Result::applyAction(State s, Move m) {
     

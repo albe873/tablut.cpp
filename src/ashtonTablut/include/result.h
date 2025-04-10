@@ -5,11 +5,12 @@
 
 #include "common.h"
 #include "state.h"
+#include "actions.h"
 
 class Result {
     public:
         // assumption: the move is valid
-        State applyAction(State s, Move m);
+        static State applyAction(State s, Move m);
 };
 
 #endif // RESULT_H

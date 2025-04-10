@@ -35,3 +35,11 @@ std::string Move::toString() {
     return "Move from (" + std::to_string(from.x) + ", " + std::to_string(from.y) + 
         ") to (" + std::to_string(to.x) + ", " + std::to_string(to.y) + ")";
 }
+
+// --- Operators ---
+bool Move::operator==(const Move& other) const {
+    return from == other.from && to == other.to;
+}
+bool Move::equals(const Move& other) const {
+    return *this == other;
+}

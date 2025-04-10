@@ -12,8 +12,14 @@ inline bool Action::checksIfValid(cord start, cord dest, Piece piece, State s) {
     if ((piece == Piece::White || piece == Piece::King) && State::isCamp(dest))
         return false;
     else {      // Check if the new position is a camp (prohibited return for black)
-        if (State::isCamp(dest) && !State::isCamp(start))
-            return false;
+        if (State::isCamp(dest))
+            if (!State::isCamp(start))
+                return false;
+            // Check if the move cross the table and goes in another camp
+            int8_t deltaX = dest.x - start.x;
+            int8_t deltaY = dest.y - start.y;
+            if (deltaX > 2 || deltaX < -2 || deltaY > 2 || deltaY < -2)
+                return false;
     }
 
     return true;
