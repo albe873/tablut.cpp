@@ -39,10 +39,6 @@ inline bool checkKingCapture(State& s, const cord& c, const cord& dir) {
     // Normal case: 2 black soldiers are enaugh
     cord checkCord = Move::calculateNewCord(c, dir);
     Piece checkPiece = s.getPiece(checkCord);
-
-    // check if the piece is empty or cord invalid (0 and -1)
-    if ( (int8_t) checkPiece < 1)
-        return false;
     
     // check if the piece is black or camp (NOT throne, is special case above)
     if (checkPiece == Piece::Black || s.isCamp(checkCord))
@@ -65,11 +61,6 @@ inline void checkCaptureWhite(State& s, const cord& c, const cord& dir) {
         cord checkCord = Move::calculateNewCord(captureCord, dir);
         
         Piece checkPiece = s.getPiece(checkCord);
-
-        // check if the piece is empty or cord invalid (0 and -1)
-        if ( (int8_t) checkPiece < 1)
-            return;
-
         
         if (checkPiece == Piece::White || s.isThrone(checkCord) || s.isCamp(checkCord)) {
             // capture the piece
@@ -99,13 +90,7 @@ inline bool checkCaptureBlack(State& s, const cord& c, const cord& dir) {
         cord checkCord = Move::calculateNewCord(captureCord, dir);
         std::cout << "checkCord cord: (" << std::to_string(checkCord.x) << ", " << std::to_string(checkCord.y) << ")" << std::endl;
 
-        
         Piece checkPiece = s.getPiece(checkCord);
-
-        // check if the piece is empty or cord invalid (0 and -1)
-        if ( (int8_t) checkPiece < 1)
-            return false;
-
         
         if (checkPiece == Piece::Black || s.isThrone(checkCord) || s.isCamp(checkCord)) {
             // capture the piece
