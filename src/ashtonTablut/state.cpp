@@ -78,7 +78,8 @@ State::State() {
     // King
     board[throne.y][throne.x] = Piece::King;
     
-    this->hashHistory = std::vector<int>();
+    hashHistory = std::vector<int>();
+    hashHistory.push_back(softHash());
 }
 
 State::State(const Piece (&board)[9][9], Turn turn, std::vector<int> hashHistory) {
@@ -178,6 +179,16 @@ bool State::isEqual(const State& other) const {
             }
         }
     }
+
+    if (this->hashHistory.size() != other.hashHistory.size()) {
+        return false;
+    }
+    for (size_t i = 0; i < this->hashHistory.size(); i++) {
+        if (this->hashHistory[i] != other.hashHistory[i]) {
+            return false;
+        }
+    }
+
     return true;
 }
 
