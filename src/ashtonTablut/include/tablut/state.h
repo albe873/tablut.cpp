@@ -70,6 +70,8 @@ public:
     // State History
     bool isHistoryRepeated();
     void clearHistory();
+    void setHistory(std::vector<int> history);
+    std::vector<int> getHistory() const;
     
     // Print Utilities
     std::string boardString() const;

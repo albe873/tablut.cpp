@@ -1,6 +1,6 @@
 // common.cpp
 
-#include "include/common.h"
+#include "tablut/common.h"
 
 // cord
 cord::cord() : x(0), y(0) {}

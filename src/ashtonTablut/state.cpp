@@ -1,6 +1,6 @@
 // state.cpp
 
-#include "state.h"
+#include "tablut/state.h"
 
 std::string toString(Turn turn) {
     switch (turn) {
@@ -143,6 +143,12 @@ bool State::isHistoryRepeated() {
 }
 void State::clearHistory() {
     hashHistory.clear();
+}
+void State::setHistory(std::vector<int> history) {
+    hashHistory = history;
+}
+std::vector<int> State::getHistory() const {
+    return hashHistory;
 }
 
 

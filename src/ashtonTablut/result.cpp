@@ -1,6 +1,6 @@
 // result.cpp
 
-#include "result.h"
+#include "tablut/result.h"
 
 
 inline bool checkKingCapture(State& s, const cord& c, const cord& dir) {

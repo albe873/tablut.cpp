@@ -1,0 +1,5 @@
+add_library(serverConnection simpleJson.cpp)
+
+target_include_directories(serverConnection PUBLIC include)
+
+target_link_libraries(serverConnection tablut)

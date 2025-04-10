@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <algorithm>
 
-#include <result.h>
+#include <tablut/result.h>
 
 TEST(ResultTest, MoveAndCapture) {
     State initialState;

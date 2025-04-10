@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
-#include "actions.h"
 #include <algorithm>
+#include "tablut/actions.h"
+
 
 // Basic test to check actions in an initial state
 TEST(ActionsTest, InitialStateActions) {

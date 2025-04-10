@@ -1,1 +1,2 @@
 add_subdirectory(ashtonTablut)
+add_subdirectory(serverConnection)

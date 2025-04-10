@@ -1,6 +1,6 @@
 // actions.cpp
 
-#include "actions.h"
+#include "tablut/actions.h"
 
 // Only check for current position, not the entire line
 inline bool Action::checksIfValid(const cord& start, const cord& dest, Piece piece, const State& s) {
