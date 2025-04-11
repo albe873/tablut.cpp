@@ -1,4 +1,6 @@
-add_library(serverConnection simpleJson.cpp)
+add_library(serverConnection simpleJson.cpp
+                             serverComunicator.cpp
+)
 
 target_include_directories(serverConnection PUBLIC include)
 

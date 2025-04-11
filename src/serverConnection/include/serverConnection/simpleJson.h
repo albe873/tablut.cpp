@@ -10,6 +10,8 @@
 class SimpleJson {
 public:
 
+    static std::string toJson(std::string name);
+
     /*
     Mossa inviata come: (con turno)
     //{"from":"g3","to":"g6","turn":"WHITE"}

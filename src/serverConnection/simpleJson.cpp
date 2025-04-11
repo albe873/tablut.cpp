@@ -3,9 +3,11 @@
 #include "serverConnection/simpleJson.h"
 
 std::string cordToString(cord c) {
-    char column = 'a' + c.x - 1; // Convert x to a letter (1 -> 'a', 2 -> 'b', etc.)
-    std::string row = std::to_string(c.y + 1); // Convert y to a string
-    return std::string(1, column) + row; // Combine column and row
+    // Convert x (0-8) to letters 'a' through 'i'
+    char column = 'a' + c.x;
+    // Convert y (0-8) to numbers 1-9
+    std::string row = std::to_string(c.y + 1);
+    return std::string(1, column) + row;
 }
 
 std::string turnToString(Turn turn) {
@@ -14,6 +16,13 @@ std::string turnToString(Turn turn) {
         case Turn::White: return "WHITE";
         default: return "UNKNOWN";
     }
+}
+
+std::string SimpleJson::toJson(std::string name) {
+    std::string json = "\"";
+    json += name;
+    json += "\"";
+    return json;
 }
 
 std::string SimpleJson::toJson(Move move, Turn turn) {

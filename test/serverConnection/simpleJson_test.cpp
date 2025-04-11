@@ -9,7 +9,7 @@ TEST(SimpleJsonTest, JsonMoveConversion) {
     std::cout << "Generated JSON: " << json << std::endl;
 
     // Expected JSON format
-    std::string expectedJson = "{\"from\":\"d5\",\"to\":\"e6\",\"turn\":\"WHITE\"}";
+    std::string expectedJson = "{\"from\":\"e5\",\"to\":\"f6\",\"turn\":\"WHITE\"}";
     std::cout << "Expected JSON: " << expectedJson << std::endl;
     ASSERT_EQ(json, expectedJson);
 }
