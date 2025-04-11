@@ -10,7 +10,7 @@ std::string cordToString(cord c) {
     return std::string(1, column) + row;
 }
 
-std::string turnToString(Turn turn) {
+std::string turnToString(const Turn& turn) {
     switch (turn) {
         case Turn::Black: return "BLACK";
         case Turn::White: return "WHITE";
@@ -18,14 +18,14 @@ std::string turnToString(Turn turn) {
     }
 }
 
-std::string SimpleJson::toJson(std::string name) {
+std::string SimpleJson::toJson(const std::string& name) {
     std::string json = "\"";
     json += name;
     json += "\"";
     return json;
 }
 
-std::string SimpleJson::toJson(Move move, Turn turn) {
+std::string SimpleJson::toJson(const Move& move, const Turn& turn) {
     std::string json = "{";
     json += "\"from\":\"" + cordToString(move.getFrom()) + "\",";
     json += "\"to\":\"" + cordToString(move.getTo()) + "\",";

@@ -10,7 +10,7 @@
 class SimpleJson {
 public:
 
-    static std::string toJson(std::string name);
+    static std::string toJson(const std::string& name);
 
     /*
     Mossa inviata come: (con turno)
@@ -20,7 +20,7 @@ public:
     lettera come x, parte da sinistra con a fino ad i a destra
     */
 
-    static std::string toJson(Move, Turn);
+    static std::string toJson(const Move&, const Turn&);
     
     /*
     stato inviato come:
