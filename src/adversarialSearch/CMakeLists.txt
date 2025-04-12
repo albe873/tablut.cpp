@@ -1,0 +1,2 @@
+add_library(adversarialSearch INTERFACE)
+target_include_directories(adversarialSearch INTERFACE include)
