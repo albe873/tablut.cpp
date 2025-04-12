@@ -211,17 +211,17 @@ TEST(StateTest, CloneHistoryIndependenceTest) {
 TEST(StateTest, HashFunctionsTest) {
     std::cout << "Hash functions test" << std::endl;
     State state;
-    int softH = state.softHash();
-    int fullH = state.hash();
+    auto softH = state.softHash();
+    auto fullH = state.hash();
 
     // We only test that these return some value and remain consistent
     ASSERT_NE(softH, 0);
     ASSERT_NE(fullH, 0);
 
     // Move a piece and verify the hash changes
-    int oldSoft = state.softHash();
+    auto oldSoft = state.softHash();
     state.movePiece({3,0}, {2,0});
-    int newSoft = state.softHash();
+    auto newSoft = state.softHash();
     ASSERT_NE(oldSoft, newSoft);
 }
 

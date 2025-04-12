@@ -102,7 +102,7 @@ State ServerComunicator::readState() {
 
 void ServerComunicator::addHistoty(State& newState, const State& oldState) {
     auto history = oldState.getHistory();
-    int softHash = newState.softHash();
+    auto softHash = newState.softHash();
     history.push_back(softHash);
     newState.setHistory(history);
 }

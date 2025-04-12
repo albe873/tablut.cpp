@@ -36,7 +36,7 @@ public:
     static const int8_t size = 9;
     Piece board[size][size];
     Turn turn;
-    std::vector<int> hashHistory;
+    std::vector<int16_t> hashHistory;
 
     // Static constants
     static const std::vector<cord> whitePieces;
@@ -50,7 +50,7 @@ public:
     // Constructor
     State();
     State(const Piece (&board)[size][size], Turn turn);
-    State(const Piece (&board)[size][size], Turn turn, std::vector<int> hashHistory);
+    State(const Piece (&board)[size][size], Turn turn, std::vector<int16_t> hashHistory);
 
     // Getters
     const Piece (&getBoard() const)[size][size];
@@ -70,15 +70,15 @@ public:
     // State History
     bool isHistoryRepeated();
     void clearHistory();
-    void setHistory(std::vector<int> history);
-    std::vector<int> getHistory() const;
+    void setHistory(std::vector<int16_t> history);
+    std::vector<int16_t> getHistory() const;
     
     // Print Utilities
     std::string boardString() const;
 
     State clone() const;
     bool equals(const State& other) const;
-    int softHash() const;
+    int16_t softHash() const;
     int hash() const;
 };
 

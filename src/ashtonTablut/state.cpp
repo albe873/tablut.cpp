@@ -78,19 +78,19 @@ State::State() {
     // King
     board[throne.y][throne.x] = Piece::King;
     
-    hashHistory = std::vector<int>();
+    hashHistory = std::vector<int16_t>();
     hashHistory.push_back(softHash());
 }
 
-State::State(const Piece (&board)[9][9], Turn turn, std::vector<int> hashHistory) {
+State::State(const Piece (&board)[9][9], Turn turn, std::vector<int16_t> hashHistory) {
     this->turn = turn;
     std::memcpy(this->board, board, sizeof(this->board));
-    this->hashHistory = std::vector<int>(hashHistory.begin(), hashHistory.end());
+    this->hashHistory = hashHistory;
 }
 State::State(const Piece (&board)[9][9], Turn turn) {
     this->turn = turn;
     std::memcpy(this->board, board, sizeof(this->board));
-    this->hashHistory = std::vector<int>();
+    this->hashHistory = std::vector<int16_t>();
 }
 
 
@@ -144,10 +144,10 @@ bool State::isHistoryRepeated() {
 void State::clearHistory() {
     hashHistory.clear();
 }
-void State::setHistory(std::vector<int> history) {
+void State::setHistory(std::vector<int16_t> history) {
     hashHistory = history;
 }
-std::vector<int> State::getHistory() const {
+std::vector<int16_t> State::getHistory() const {
     return hashHistory;
 }
 
@@ -203,11 +203,11 @@ bool State::equals(const State& other) const {
 }
 
 // Hash only the board, to use for History
-int State::softHash() const {
+int16_t State::softHash() const {
     int hash = 0;
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
-            hash ^= static_cast<int>(board[y][x]) * (x + 1) * (y + 1);
+            hash ^= static_cast<int16_t>(board[y][x]) * (x + 1) * (y*8 + 1);
         }
     }
     return hash;
@@ -215,6 +215,6 @@ int State::softHash() const {
 
 int State::hash() const {
     int hash = softHash();
-    hash ^= static_cast<int>(turn) * 1000;
+    hash ^= static_cast<int>(turn) * 1024;
     return hash;
 }

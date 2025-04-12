@@ -15,9 +15,6 @@ public:
     /*
     Mossa inviata come: (con turno)
     //{"from":"g3","to":"g6","turn":"WHITE"}
-
-    numero come y, parte da 1 in alto fino a 9 basso
-    lettera come x, parte da sinistra con a fino ad i a destra
     */
 
     static std::string toJson(const Move&, const Turn&);
