@@ -8,15 +8,19 @@
 #include <tablut/heuristics.h>
 #include <serverConnection/serverComunicator.h>
 #include <adversarialSearch/iteDeepAlphaBetaSearch.h>
+#include <adversarialSearch/parIteDABSearch.h>
 
 using namespace std;
 
 Move findBestMove(const Game& game, const State& state, int maxTime) {
     cout << "Finding best move..." << endl;
-    auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, maxTime);
-    cout << "search created" << endl;
+    //auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, maxTime);
+    auto search = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, maxTime);
     Move bestMove = search.makeDecision(state);
-    cout << "Best move found" << endl;
+    cout << "Metrics: " << search.getMetrics() << endl;
+
+    auto bestValue = Heuristics::getHeuristics(state, state.getTurn());
+    cout << "Best move found, value: " << to_string(bestValue) << endl;
     return bestMove;
 }
 
