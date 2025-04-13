@@ -72,13 +72,6 @@ protected:
     U eval(S state, P player) {
         hEvalUsed = true;
         return game.getUtility(state, player);
-        /*
-        if (game.isTerminal(state))
-            return game.getUtility(state, player);
-        else {
-            hEvalUsed = true;
-            return (utilMin + utilMax) / 2;
-        }*/
     }
 
     vector<A> orderActions(S state, vector<A> actions, P player, int depth) {
@@ -99,10 +92,9 @@ public:
         this->timer.start();
     
         auto player = game.getPlayer(state);
-        auto alpha = utilMin;
-        auto beta = utilMax;
     
         auto actions = orderActions(state, game.getActions(state), player, 0);
+        std::cout << "Actions count: " << std::to_string(actions.size()) << std::endl;
         multiset<actionUtility<A, U>> results;
         for (auto action : actions)
             results.insert({action, utilMin});
@@ -116,14 +108,12 @@ public:
             
             for (auto actUtil : results) {
                 auto newState = game.getResult(state, actUtil.action);
-                actUtil.utility = minValue(newState, player, alpha, beta, 1);
+                actUtil.utility = minValue(newState, player, utilMin, utilMax, 1);
     
                 newResults.insert(actUtil);
                 
-                if (timer.isTimeOut()) {
-                    std::cout << "Time out during search" << std::endl;
+                if (timer.isTimeOut())
                     break;
-                }
             }
     
             if (!newResults.empty()) {

@@ -13,7 +13,7 @@ using namespace std;
 
 Move findBestMove(const Game& game, const State& state, int maxTime) {
     cout << "Finding best move..." << endl;
-    auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int8_t>(game, -128, 127, maxTime);
+    auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, maxTime);
     cout << "search created" << endl;
     Move bestMove = search.makeDecision(state);
     cout << "Best move found" << endl;
