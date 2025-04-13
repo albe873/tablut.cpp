@@ -15,8 +15,10 @@ private:
     bool hEvalUsed;
     int currentDepthLimit;
     Timer timer;
+    SimpleMetrics metrics;
 
     U maxValue(S state, P player, U alpha, U beta, int depth) {
+        updateMetrics(depth);
     
         if (game.isTerminal(state) || depth >= currentDepthLimit || timer.isTimeOut())
             return eval(state, player);
@@ -38,6 +40,7 @@ private:
 
 
     U minValue(S state, P player, U alpha, U beta, int depth) {
+        updateMetrics(depth);
     
         if (game.isTerminal(state) || depth >= currentDepthLimit || timer.isTimeOut())
             return eval(state, player);
@@ -78,6 +81,11 @@ protected:
         return actions;
     }
 
+    void updateMetrics(int depth) {
+        metrics.updateMaxDepth(depth);
+        metrics.incrementNodesExpanded();
+    }
+
 
 public:
 
@@ -87,21 +95,17 @@ public:
     {}
     
     A makeDecision(S state) {
-        std::cout << "Starting search with depth limit: " << currentDepthLimit << std::endl;
-    
+        metrics.reset();    
         this->timer.start();
-    
         auto player = game.getPlayer(state);
     
         auto actions = orderActions(state, game.getActions(state), player, 0);
-        std::cout << "Actions count: " << std::to_string(actions.size()) << std::endl;
         multiset<actionUtility<A, U>> results;
         for (auto action : actions)
             results.insert({action, utilMin});
         
         do {
             incrementDepthLimit();
-            std::cout << "Searching with depth limit: " << currentDepthLimit << std::endl;
             hEvalUsed = false;
     
             multiset<actionUtility<A, U>> newResults;
@@ -117,7 +121,6 @@ public:
             }
     
             if (!newResults.empty()) {
-                std::cout << "Best action found: " << std::to_string(results.begin()->utility) << std::endl;
                 results = newResults;
                 if (!timer.isTimeOut()) {
                     if (hasSafeWinner(results.begin()->utility))
@@ -129,7 +132,10 @@ public:
             
         } while (!timer.isTimeOut() && hEvalUsed);
         
-        std::cout << "Search completed at depth " << currentDepthLimit << std::endl;
         return results.begin()->action;
+    }
+
+    std::string getMetrics() const {
+        return metrics.toString();
     }
 };

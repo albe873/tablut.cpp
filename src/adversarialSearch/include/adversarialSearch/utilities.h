@@ -4,6 +4,10 @@
 #include <mutex>
 #include <thread>
 #include <condition_variable>
+#include <string>
+
+#ifndef UTILITIES_H
+#define UTILITIES_H
 
 class Timer {
 private:
@@ -24,6 +28,21 @@ public:
     bool isTimeOut();
 };
 
+class SimpleMetrics {
+private:
+    std::mutex mtx;
+    u_int maxDepth;
+    u_long nodesExpanded;
+public:
+    SimpleMetrics();
+    void reset();
+    void incrementNodesExpanded();
+    void updateMaxDepth(u_int depth);
+    u_int getMaxDepth() const;
+    u_long getNodesExpanded() const;
+    std::string toString() const;
+};
+
 template <class A, class U>
 struct actionUtility {
     A action;
@@ -33,3 +52,5 @@ struct actionUtility {
         return utility > other.utility;
     }
 };
+
+#endif // UTILITIES_H

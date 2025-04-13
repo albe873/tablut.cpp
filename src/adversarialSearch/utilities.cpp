@@ -56,3 +56,28 @@ bool Timer::isTimeOut() {
     return timeOut;
 }
 
+// ------ SimpleMetrics ------
+SimpleMetrics::SimpleMetrics() : maxDepth(0), nodesExpanded(0) {}
+void SimpleMetrics::incrementNodesExpanded() {
+    std::lock_guard<std::mutex> lock(mtx);
+    nodesExpanded++;
+}
+void SimpleMetrics::reset() {
+    std::lock_guard<std::mutex> lock(mtx);
+    maxDepth = 0;
+    nodesExpanded = 0;
+}
+void SimpleMetrics::updateMaxDepth(u_int depth) {
+    std::lock_guard<std::mutex> lock(mtx);
+    if (depth > maxDepth)
+        maxDepth = depth;
+}
+u_int SimpleMetrics::getMaxDepth() const {
+    return maxDepth;
+}
+u_long SimpleMetrics::getNodesExpanded() const {
+    return nodesExpanded;
+}
+std::string SimpleMetrics::toString() const {
+    return "Max Depth: " + std::to_string(maxDepth) + ", Nodes Expanded: " + std::to_string(nodesExpanded);
+}
