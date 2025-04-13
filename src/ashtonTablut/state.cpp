@@ -15,7 +15,7 @@ std::string toString(Turn turn) {
 
 std::string toString(Piece piece) {
     switch (piece) {
-        case Piece::Empty: return "0";
+        case Piece::Empty: return "-";
         case Piece::Black: return "B";
         case Piece::White: return "W";
         case Piece::King: return "K";
@@ -80,18 +80,30 @@ State::State() {
     
     hashHistory = std::vector<int16_t>();
     hashHistory.push_back(softHash());
+
+    // Set the number of pieces
+    whiteP = 8;
+    blackP = 16;
 }
 
 State::State(const Piece (&board)[9][9], Turn turn, std::vector<int16_t> hashHistory) {
     this->turn = turn;
     std::memcpy(this->board, board, sizeof(this->board));
     this->hashHistory = hashHistory;
+    // Set the number of pieces
+    whiteP = 0;
+    blackP = 0;
+    for (int8_t y = 0; y < size; y++) {
+        for (int8_t x = 0; x < size; x++) {
+            if (board[y][x] == Piece::White)
+                whiteP++;
+            else if (board[y][x] == Piece::Black)
+                blackP++;
+        }
+    }
 }
-State::State(const Piece (&board)[9][9], Turn turn) {
-    this->turn = turn;
-    std::memcpy(this->board, board, sizeof(this->board));
-    this->hashHistory = std::vector<int16_t>();
-}
+State::State(const Piece (&board)[9][9], Turn turn) 
+    : State(board, turn, std::vector<int16_t>()) {}
 
 
 
@@ -109,7 +121,16 @@ void State::setTurn(Turn newTurn) {
 }
 
 void State::removePiece(const cord& c) {
+    // update pieces count
+    if (board[c.y][c.x] == Piece::White)
+        whiteP--;
+    else if (board[c.y][c.x] == Piece::Black)
+        blackP--;
+    
+    // remove the piece
     board[c.y][c.x] = Piece::Empty;
+
+    // clear history, the same state cannot be repeated
     clearHistory();
 }
 void State::movePiece(const cord& from, const cord& to) {
@@ -155,12 +176,24 @@ std::vector<int16_t> State::getHistory() const {
 
 // ------ Utilities ------
 
+// Utilities for Heuristics
+int8_t State::getWhitePieces() const {
+    return whiteP;
+}
+int8_t State::getBlackPieces() const {
+    return blackP;
+}
+
 // Utility to print the board
 std::string State::boardString() const {
     std::string result;
-    for (int y = 0; y < size; y++) {
-        for (int x = 0; x < size; x++) {
-            result += toString(board[y][x]) + ' ';
+    for (int8_t y = 0; y < size; y++) {
+        for (int8_t x = 0; x < size; x++) {
+            if (isEmpty({x, y}) && (isCamp({x, y}) || isThrone({x, y}))) {
+                result += "+ ";
+            }
+            else
+                result += toString(board[y][x]) + ' ';
         }
         result += '\n';
     }

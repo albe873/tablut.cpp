@@ -32,6 +32,9 @@ inline std::string toString(Turn turn);
 
 
 class State {
+private:
+    int8_t whiteP;
+    int8_t blackP;
 public:
     static const int8_t size = 9;
     Piece board[size][size];
@@ -63,9 +66,12 @@ public:
     //void setPiece(cord c, Piece piece);
     Piece getPiece(const cord& c) const;
 
-
     // Utilities
     bool isEmpty(const cord& c) const;
+
+    // Heuristics Utilities
+    int8_t getWhitePieces() const;
+    int8_t getBlackPieces() const;
     
     // State History
     bool isHistoryRepeated();
