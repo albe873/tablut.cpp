@@ -20,6 +20,18 @@ Move findBestMove(const Game& game, const State& state, int maxTime) {
     return bestMove;
 }
 
+void checkState(const State& serverState, const State& localState) {
+    int8_t expectedHash = localState.softHash();
+    int8_t actualHash = serverState.hash();
+    if (expectedHash != actualHash) {
+        cerr << "State hash mismatch. Server: " << to_string(expectedHash) 
+             << ", Local: " << to_string(actualHash) << endl;
+        cerr << "Server state: " << endl << serverState.boardString() << endl;
+        cerr << "Local state: " << endl << localState.boardString() << endl;
+        exit(1);
+    }
+}
+
 int main(int argc, char* argv[]) {
 
     string name = "aiPlayer.cpp";
@@ -27,6 +39,7 @@ int main(int argc, char* argv[]) {
     int maxtime = 5;
     Turn team = Turn::White;
     const char* ip = "localhost";
+    bool strictServerCheck = true;
 
     if (argc > 1) {
         string arg1 = argv[1];
@@ -50,6 +63,16 @@ int main(int argc, char* argv[]) {
     }
     if (argc > 3) {
         ip = argv[3];
+    }
+    if (argc > 4) {
+        string arg4 = argv[4];
+        transform(arg4.begin(), arg4.end(), arg4.begin(), ::toupper);
+        if (arg4 == "CS") {
+            strictServerCheck = true;
+        } else {
+            cerr << "Invalid strict server check argument. Use 'true' or 'false' (case insensitive)." << endl;
+            return 1;
+        }
     }
 
     int port = (team == Turn::White) ? ServerComunicator::whiteDefPort : ServerComunicator::blackDefPort;
@@ -77,7 +100,7 @@ int main(int argc, char* argv[]) {
 
     Game game = Game(State(), Action::getActions, Result::applyAction, Heuristics::getHeuristics);
 
-    State state;
+    State state, result;
     Turn turn;
     while (true) {
         // read state
@@ -88,6 +111,8 @@ int main(int argc, char* argv[]) {
         }
         if (turn != team) {
             cout << "Not your turn." << endl;
+            if (strictServerCheck)
+                checkState(state, result);
             continue;
         }
         cout << "State read: \n" << state.boardString() << endl;
@@ -113,11 +138,11 @@ int main(int argc, char* argv[]) {
             break;
         }
 
-        State result = Result::applyAction(state, move);
-        //cout << "Expected result:" << endl;
-        //cout << result.boardString() << endl;
+        result = Result::applyAction(state, move);
     }
     client.disconnectFromServer();
+
+    cout << "\n\nGAME OVER, FINAL STATE: \n\n" << state.boardString() << endl;
 
     if (state.getTurn() == Turn::WhiteWin) {
         cout << "White wins!" << endl;
