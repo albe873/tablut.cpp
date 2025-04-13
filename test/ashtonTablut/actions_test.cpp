@@ -148,6 +148,17 @@ TEST(ActionTest, BlackAllMoves) {
     }
 }
 
+TEST(ActionTest, initialMovesWhite) {
+    State s = State();
+    s.setTurn(Turn::White);
+    std::vector<Move> moves = Action::getActions(s);
+    std::cout << "Moves: " << moves.size() << std::endl;
+    for (size_t i = 0; i < moves.size(); i++) {
+        std::cout << "Move: " << moves[i].toString() << std::endl;
+    }
+    EXPECT_EQ(moves.size(), 56);
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

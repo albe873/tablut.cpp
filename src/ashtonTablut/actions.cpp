@@ -8,18 +8,25 @@ inline bool Action::checksIfValid(const cord& start, const cord& dest, Piece pie
     if (State::isThrone(dest) || !s.isEmpty(dest))
         return false;
 
-    // Check if the new position is a camp (prohibited for white)
-    if ((piece == Piece::White || piece == Piece::King) && State::isCamp(dest))
-        return false;
-    else {      // Check if the new position is a camp (prohibited return for black)
-        if (State::isCamp(dest))
+    // Check if the new position is a camp
+    if (State::isCamp(dest)) {
+
+        // camp logic for black
+        if (piece == Piece::Black) {
+            // cannot return to a camp
             if (!State::isCamp(start))
                 return false;
-            // Check if the move cross the table and goes in another camp
+            // cannot cross the table to another camp
             int8_t deltaX = dest.x - start.x;
             int8_t deltaY = dest.y - start.y;
             if (deltaX > 2 || deltaX < -2 || deltaY > 2 || deltaY < -2)
                 return false;
+        
+        // camp logic for white
+        } else { // piece == Piece::White or Piece::King
+            // white cannot go to camps
+            return false;
+        }
     }
 
     return true;
