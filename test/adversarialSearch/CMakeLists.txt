@@ -1,8 +1,9 @@
 find_package(GTest REQUIRED)
 
 add_executable(utilities_test utilities_test.cpp)
+add_executable(timer_test timer_test.cpp)
 
-foreach(target utilities_test)
+foreach(target utilities_test timer_test)
   target_link_libraries(${target}
     PRIVATE
       GTest::GTest

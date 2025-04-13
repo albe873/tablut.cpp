@@ -1,7 +1,6 @@
 // utilities.cpp
 
 #include "adversarialSearch/utilities.h"
-#include <thread>
 
 
 // ------ Timer ------
@@ -9,6 +8,16 @@
 Timer::Timer(int maxTimeSeconds) : maxTimeSeconds(maxTimeSeconds) {
     timeOut = false;
     started = false;
+}
+
+Timer::~Timer() {
+    {
+        std::lock_guard<std::mutex> lock(mtx);
+        stopReq = true;
+    }
+    cv.notify_all();
+    if (timerTh.joinable())
+        timerTh.join();
 }
 
 bool Timer::start() {
@@ -21,15 +30,19 @@ bool Timer::start() {
 
     timeOut = false;
     started = true;
+    stopReq = false;
 
-    std::thread([this]() {
-        std::this_thread::sleep_for(std::chrono::seconds(maxTimeSeconds));
-        std::lock_guard<std::mutex> lock(mtx);
-        if (started) {
+    timerTh = std::thread([this]() {
+        std::unique_lock<std::mutex> lk(mtx);
+        cv.wait_for(lk, std::chrono::seconds(maxTimeSeconds), [this]() {
+            return stopReq;
+        });
+
+        if (!stopReq && started) {
             timeOut = true;
             started = false;
         }
-    }).detach();
+    });
 
     return true; // Timer started successfully
 }

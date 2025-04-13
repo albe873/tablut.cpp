@@ -2,16 +2,22 @@
 
 #include <chrono>
 #include <mutex>
+#include <thread>
+#include <condition_variable>
 
 class Timer {
 private:
     int maxTimeSeconds;
     bool timeOut;
     bool started;
+    bool stopReq;
     std::mutex mtx;
+    std::thread timerTh;
+    std::condition_variable cv;
 
 public:
     Timer(int maxTimeSeconds);
+    ~Timer();
 
     bool start();
     void setTimeOut(bool timeOut);
