@@ -53,11 +53,11 @@ inline void checkCaptureWhite(State& s, const cord& c, const cord& dir) {
     cord captureCord = Move::calculateNewCord(c, dir);
 
     // piece
-    // enemy
+    // enemy (that is not in a camp!)
     // piece or throne or camp
     // -> capture
 
-    if (s.getPiece(captureCord) == Piece::Black) {
+    if (s.getPiece(captureCord) == Piece::Black && !s.isCamp(captureCord)) {
         cord checkCord = Move::calculateNewCord(captureCord, dir);
         
         Piece checkPiece = s.getPiece(checkCord);
@@ -73,7 +73,7 @@ inline bool checkCaptureBlack(State& s, const cord& c, const cord& dir) {
     cord captureCord = Move::calculateNewCord(c, dir);
 
     // black
-    // white
+    // white (white cannot be in camp)
     // black or throne or camp
     // -> capture
 
