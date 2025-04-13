@@ -2,7 +2,8 @@ add_library(tablut  state.cpp
                     common.cpp 
                     actions.cpp 
                     result.cpp
-                    game.cpp)
+                    game.cpp
+                    heuristics.cpp)
 
 target_include_directories(tablut PUBLIC include)
 

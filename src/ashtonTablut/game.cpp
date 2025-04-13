@@ -5,7 +5,7 @@
 Game::Game(State initialState,
     std::function<std::vector<Move>(State)> actionsFunction,
     std::function<State(State, Move)> resultFunction,
-    std::function<int8_t(State)> utilityFunction)
+    std::function<int8_t(State, Turn)> utilityFunction)
 {
     this->initialState = initialState;
     this->actionsFunction = actionsFunction;
@@ -14,29 +14,29 @@ Game::Game(State initialState,
 }
 
 
-State Game::getInitialState() {
+State Game::getInitialState() const {
     return initialState;
 }
 
-std::vector<Turn> Game::getPlayers() {
+std::vector<Turn> Game::getPlayers() const {
     return {Turn::Black, Turn::White};
 }
 
-Turn Game::getPlayer(State state) {
+Turn Game::getPlayer(const State& state) const {
     return state.getTurn();
 }
 
-std::vector<Move> Game::getActions(State state) {
+std::vector<Move> Game::getActions(const State& state) const {
     return actionsFunction(state);
 }
-State Game::getResult(State state, Move action) {
+State Game::getResult(State state, const Move& action) const {
     return resultFunction(state, action);
 }
 
-bool Game::isTerminal(State state) {
+bool Game::isTerminal(const State& state) const {
     return state.getTurn() == Turn::BlackWin || state.getTurn() == Turn::WhiteWin || state.getTurn() == Turn::Draw;
 }
 
-int8_t Game::getUtility(State state) {
-    return utilityFunction(state);
+int8_t Game::getUtility(const State& state, const Turn& player) const {
+    return utilityFunction(state, player);
 }

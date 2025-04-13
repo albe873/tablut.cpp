@@ -10,27 +10,27 @@ private:
     State initialState;
     std::function<std::vector<Move>(State)> actionsFunction;
     std::function<State(State, Move)> resultFunction;
-    std::function<int8_t(State)> utilityFunction;
+    std::function<int8_t(State, Turn)> utilityFunction;
 
 public:
     // Constructor
     Game(State initialState,
          std::function<std::vector<Move>(State)> actionsFunction,
          std::function<State(State, Move)> resultFunction,
-         std::function<int8_t(State)> utilityFunction);
+         std::function<int8_t(State, Turn)> utilityFunction);
     
     
-    State getInitialState() override;
+    State getInitialState() const override;
 
-    std::vector<Turn> getPlayers() override;
+    std::vector<Turn> getPlayers() const override;
 
-    Turn getPlayer(State state) override;
+    Turn getPlayer(const State&) const override;
 
-    std::vector<Move> getActions(State state) override;
+    std::vector<Move> getActions(const State&) const override;
 
-    State getResult(State state, Move action) override;
+    State getResult(State, const Move&) const override;
 
-    bool isTerminal(State state) override;
+    bool isTerminal(const State&) const override;
 
-    int8_t getUtility(State state) override;
+    int8_t getUtility(const State&, const Turn&) const override;
 };

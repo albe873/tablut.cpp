@@ -1,2 +1,3 @@
-add_library(adversarialSearch INTERFACE)
-target_include_directories(adversarialSearch INTERFACE include)
+add_library(adversarialSearch   utilities.cpp)
+
+target_include_directories(adversarialSearch PUBLIC include)

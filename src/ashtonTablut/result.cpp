@@ -70,10 +70,7 @@ inline void checkCaptureWhite(State& s, const cord& c, const cord& dir) {
 }
 
 inline bool checkCaptureBlack(State& s, const cord& c, const cord& dir) {
-    std::cout << "checkCaptureBlack" << std::endl;
-    std::cout << "cord: (" << std::to_string(c.x) << ", " << std::to_string(c.y) << ")" << std::endl;
     cord captureCord = Move::calculateNewCord(c, dir);
-    std::cout << "capture cord: (" << std::to_string(captureCord.x) << ", " << std::to_string(captureCord.y) << ")" << std::endl;
 
     // black
     // white
@@ -88,15 +85,11 @@ inline bool checkCaptureBlack(State& s, const cord& c, const cord& dir) {
     // else normal capture check
     if (s.getPiece(captureCord) == Piece::White) {
         cord checkCord = Move::calculateNewCord(captureCord, dir);
-        std::cout << "checkCord cord: (" << std::to_string(checkCord.x) << ", " << std::to_string(checkCord.y) << ")" << std::endl;
-
         Piece checkPiece = s.getPiece(checkCord);
         
         if (checkPiece == Piece::Black || s.isThrone(checkCord) || s.isCamp(checkCord)) {
             // capture the piece
             s.removePiece(captureCord);
-            std::cout << "piece captured!!!" << std::endl;
-            std::cout << s.boardString() << std::endl;
         }
     }
 

@@ -3,23 +3,23 @@
 
 #include <vector>
 
-template <typename S, typename A, typename P, typename U>
+template <typename STATE, typename ACTION, typename PLAYER, typename UTILITY>
 class VGame {
 public:
 
-    virtual S getInitialState() = 0;
+    virtual STATE getInitialState() const = 0;
 
-    virtual std::vector<P> getPlayers() = 0;
+    virtual std::vector<PLAYER> getPlayers() const = 0;
     
-    virtual P getPlayer(S state) = 0;
+    virtual PLAYER getPlayer(const STATE&) const = 0;
     
-    virtual std::vector<A> getActions(S state) = 0;
+    virtual std::vector<ACTION> getActions(const STATE&) const = 0;
     
-    virtual S getResult(S state, A action) = 0;
+    virtual STATE getResult(STATE, const ACTION&) const = 0;
     
-    virtual bool isTerminal(S state) = 0;
+    virtual bool isTerminal(const STATE&) const = 0;
     
-    virtual U getUtility(S state) = 0;
+    virtual UTILITY getUtility(const STATE&, const PLAYER&) const = 0;
     
     virtual ~VGame() = default;
 };
