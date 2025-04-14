@@ -2,6 +2,9 @@
 
 #include "tablut/heuristics.h"
 
+const int8_t Heuristics::max = 100;
+const int8_t Heuristics::min = -100;
+
 int8_t Heuristics::getHeuristics(const State& state, const Turn& turn) {
     if (state.getTurn() == Turn::BlackWin) {
         if (turn == Turn::Black) return Heuristics::max;
@@ -28,26 +31,22 @@ int8_t Heuristics::whiteHeuristics(const State& state) {
     // escape routes
     switch (kingEscapeRoutes(state)) {
         case 1:
-            score += 3;
+            score += 2;
             break;
         case 2:
             score += 6;
     }
     
     // pieces
-    score += state.getWhitePieces() * 8;
-    score -= state.getBlackPieces() * 4;
+    score += state.getWhitePieces() * 5;
+    score -= state.getBlackPieces() * 5;
+
+    // king surrounding
+    score -= kingSurrounding(state)*2;
 
     // king position and escape routes
     if (state.getPiece(State::throne) == Piece::King)
-        score += 3;
-    else {
-
-    }
-    for (cord c : State::whitePieces) {
-        if (state.getPiece(c) == Piece::White)
-            score += 1;
-    }
+        score += 2;
 
     return score;
 }
@@ -66,12 +65,25 @@ int8_t Heuristics::blackHeuristics(const State& state) {
             score -= 6;
             break;
     }
+    // king surrounding
+    score += kingSurrounding(state)*2;
 
     // pieces
-    score += state.getBlackPieces() * 4;
-    score -= state.getWhitePieces() * 8;
+    score += state.getBlackPieces() * 5;
+    score -= state.getWhitePieces() * 5;
 
     return score;
+}
+
+int8_t Heuristics::kingSurrounding(const State& state) {
+    int8_t black = 0;
+    cord kingPos = state.getKingPosition();
+    for (cord dir : Directions::ALL_DIRECTIONS) {
+        cord dest = Move::calculateNewCord(kingPos, dir);
+        if (state.getPiece(dest) == Piece::Black)
+            black++;
+    }
+    return black;
 }
 
 

@@ -8,3 +8,9 @@ target_link_libraries(aiPlayer  tablut
                                 serverConnection
                                 adversarialSearch
 )
+
+add_executable(aiPlayer2 aiPlayer2.cpp)
+target_link_libraries(aiPlayer2 tablut
+                                serverConnection
+                                adversarialSearch
+)

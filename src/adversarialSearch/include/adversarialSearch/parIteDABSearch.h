@@ -91,8 +91,8 @@ protected:
 public:
 
     // Constructor
-    parIteDABSearch(const VGame<S, A, P, U>& game, U utilMin, U utilMax, int maxTimeSeconds)
-    : game(game), utilMin(utilMin), utilMax(utilMax), currentDepthLimit(0), timer(maxTimeSeconds)
+    parIteDABSearch(const VGame<S, A, P, U>& game, U utilMin, U utilMax, int startDepth, int maxTimeSeconds)
+    : game(game), utilMin(utilMin), utilMax(utilMax), currentDepthLimit(startDepth), timer(maxTimeSeconds)
     {}
     
     A makeDecision(S state) {

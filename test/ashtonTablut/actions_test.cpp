@@ -157,6 +157,14 @@ TEST(ActionTest, initialMovesWhite) {
         std::cout << "Move: " << moves[i].toString() << std::endl;
     }
     EXPECT_EQ(moves.size(), 56);
+
+    s.setTurn(Turn::Black);
+    moves = Action::getActions(s);
+    std::cout << "Moves: " << moves.size() << std::endl;
+    for (size_t i = 0; i < moves.size(); i++) {
+        std::cout << "Move: " << moves[i].toString() << std::endl;
+    }
+    EXPECT_EQ(moves.size(), 80);
 }
 
 int main(int argc, char **argv) {

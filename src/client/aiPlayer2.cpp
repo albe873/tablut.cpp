@@ -13,14 +13,24 @@
 using namespace std;
 
 Move findBestMove(const Game& game, const State& state, int maxTime) {
-    cout << "Finding best move..." << endl;
-    auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, maxTime);
-    //auto search = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 4, maxTime);
-    Move bestMove = search.makeDecision(state);
-    cout << "Metrics: " << search.getMetrics() << endl;
+    auto start = chrono::high_resolution_clock::now();
 
+    cout << "Finding best move..." << endl;
+    
+    // search
+    auto search = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 4, maxTime);
+    Move bestMove = search.makeDecision(state);
+    
+    // metrics
+    cout << "Metrics: " << search.getMetrics() << endl;
     auto bestValue = Heuristics::getHeuristics(state, state.getTurn());
     cout << "Best move found, value: " << to_string(bestValue) << endl;
+
+    // time taken
+    auto end = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+    cout << "Time taken to find best move: " << duration.count() << " ms" << endl;
+    
     return bestMove;
 }
 
@@ -40,7 +50,8 @@ int main(int argc, char* argv[]) {
 
     string name = "aiPlayer.cpp";
 
-    int maxtime = 5;
+    int maxtime = 60;
+    int safeTime = 2;
     Turn team = Turn::White;
     const char* ip = "localhost";
     bool strictServerCheck = true;
@@ -60,10 +71,11 @@ int main(int argc, char* argv[]) {
     }
     if (argc > 2) {
         maxtime = stoi(argv[2]);
-        if (maxtime <= 0) {
-            cerr << "Invalid time argument. Must be a positive integer." << endl;
+        if (maxtime <= safeTime) {
+            cerr << "Invalid time argument. Must be a positive integer and greater than safeTime." << endl;
             return 1;
         }
+        maxtime -= safeTime;
     }
     if (argc > 3) {
         ip = argv[3];
@@ -110,9 +122,9 @@ int main(int argc, char* argv[]) {
         // read state
         state = client.readState();
         turn = state.getTurn();
-        if (turn == Turn::BlackWin || turn == Turn::WhiteWin || turn == Turn::Draw || turn == (Turn) -1) {
+        if (turn == Turn::BlackWin || turn == Turn::WhiteWin || turn == Turn::Draw || turn == (Turn) -1)
             break;
-        }
+
         if (turn != team) {
             cout << "Not your turn." << endl;
             if (strictServerCheck)
@@ -128,11 +140,10 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        // select a random move
-        //Move move = moves[rand() % moves.size()];
+        // find the best move
         Move move = findBestMove(game, state, maxtime);
 
-        // Debug the move coordinates before sending
+        // Print the selected move
         cout << "Selected move from: [" << to_string(move.getFrom().x) << "," << to_string(move.getFrom().y) 
              << "] to: [" << to_string(move.getTo().x) << "," << to_string(move.getTo().y) << "]" << endl;
     
