@@ -117,9 +117,11 @@ public:
                 auto newState = game.getResult(state, actUtil.action);
                 actUtil.utility = minValue(newState, player, utilMin, utilMax, 1);
                 
-                #pragma omp critical
-                {
-                    newResults.push_back(actUtil);
+                // no break allowed, so we add the result only if the timer is not timeout
+                // we need to collect all minValue results (that terminate early if timeout) and discard the values
+                if (!timer.isTimeOut()) {
+                    #pragma omp critical
+                    {newResults.push_back(actUtil);}
                 }
             }
 
