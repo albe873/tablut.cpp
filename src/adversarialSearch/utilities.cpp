@@ -52,7 +52,6 @@ void Timer::setTimeOut(bool timeOut) {
     this->timeOut = timeOut;
 }
 bool Timer::isTimeOut() {
-    std::lock_guard<std::mutex> lock(mtx);
     return timeOut;
 }
 
