@@ -77,6 +77,7 @@ State::State() {
 
     // King
     board[throne.y][throne.x] = Piece::King;
+    kingPos = throne;
     
     hashHistory = std::vector<int16_t>();
     hashHistory.push_back(softHash());
@@ -99,6 +100,8 @@ State::State(const Piece (&board)[9][9], Turn turn, std::vector<int16_t> hashHis
                 whiteP++;
             else if (board[y][x] == Piece::Black)
                 blackP++;
+            else if (board[y][x] == Piece::King)
+                kingPos = {x, y};
         }
     }
 }
@@ -134,7 +137,12 @@ void State::removePiece(const cord& c) {
     clearHistory();
 }
 void State::movePiece(const cord& from, const cord& to) {
-    board[to.y][to.x] = board[from.y][from.x];
+    Piece toMove = board[from.y][from.x];
+    board[to.y][to.x] = toMove;
+    
+    if (toMove == Piece::King)  // update king position
+        kingPos = to;
+    
     board[from.y][from.x] = Piece::Empty;
 }
 
@@ -147,6 +155,10 @@ Piece State::getPiece(const cord& c) const {
 
 bool State::isEmpty(const cord& c) const {
     return board[c.y][c.x] == Piece::Empty;
+}
+
+cord State::getKingPosition() const {
+    return kingPos;
 }
 
 

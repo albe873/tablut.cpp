@@ -7,6 +7,7 @@ class Heuristics {
 private:
     static int8_t whiteHeuristics(const State&);
     static int8_t blackHeuristics(const State&);
+    static int8_t kingEscapeRoutes(const State&);
 public:
     static int8_t getHeuristics(const State&, const Turn&);
     static const int8_t max = 100;

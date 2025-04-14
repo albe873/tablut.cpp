@@ -35,6 +35,7 @@ class State {
 private:
     int8_t whiteP;
     int8_t blackP;
+    cord kingPos;
 public:
     static const int8_t size = 9;
     Piece board[size][size];
@@ -72,6 +73,7 @@ public:
     // Heuristics Utilities
     int8_t getWhitePieces() const;
     int8_t getBlackPieces() const;
+    cord getKingPosition() const;
     
     // State History
     bool isHistoryRepeated();
