@@ -111,15 +111,23 @@ public:
     
             vector<actionUtility<A, U>> newResults;
             
+            int maxI = 0;
             #pragma omp parallel for schedule(dynamic, 1)
             for (int i = 0; i < results.size(); i++) {
                 auto actUtil = results[i];
                 auto newState = game.getResult(state, actUtil.action);
-                actUtil.utility = minValue(newState, player, utilMin, utilMax, 1);
+                auto newUtil = minValue(newState, player, utilMin, utilMax, 1);
                 
-                // no break allowed, so we add the result only if the timer is not timeout
-                // we need to collect all minValue results (that terminate early if timeout) and discard the values
+                // no break allowed, so we add the first results calculated up to the timeout
+                // some threads might finish earlier than other with a smaller i, so I need to add
+                // up to maxI results in the newResults (some might be with a smaller) with the previous
+                // utility (if timeOut, the new utility is calculated at a smaller depth) 
                 if (!timer.isTimeOut()) {
+                    maxI = max(i, maxI);
+                    actUtil.utility = newUtil;
+                }
+                
+                if ( i <= maxI) {
                     #pragma omp critical
                     {newResults.push_back(actUtil);}
                 }
