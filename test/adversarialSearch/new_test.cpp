@@ -99,8 +99,8 @@ int main (int argc, char **argv) {
     
     
     // search
-    //auto search = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 0, maxTime);
-    auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, maxTime);
+    auto search = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 3, maxTime);
+    //auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, maxTime);
     Move move = search.makeDecision(state);
     
     // metrics
@@ -122,8 +122,8 @@ int main (int argc, char **argv) {
     std::cout << std::to_string( (int) state.getTurn()) << std::endl;
 
     // white
-    //auto search2 = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 0, maxTime);
-    auto search2 = IteDeepAlphaBetaSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, maxTime);
+    auto search2 = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 3, maxTime);
+    //auto search2 = IteDeepAlphaBetaSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, maxTime);
     move = search2.makeDecision(state);
     cout << "Metrics: " << search2.getMetrics() << endl;
     bestValue = Heuristics::getHeuristics(state, state.getTurn());
