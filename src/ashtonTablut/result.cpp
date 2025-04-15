@@ -106,8 +106,8 @@ State Result::applyAction(State state, const Move& m) {
     state.movePiece(m.getFrom(), m.getTo());
 
     // check if the piece is a king && if is on an escape tile
-    if (toMove == Piece::King && (m.getTo().x == 0 || m.getTo().x == state.size - 1 ||
-                                  m.getTo().y == 0 || m.getTo().y == state.size - 1)) {
+    if (toMove == Piece::King && (m.getTo().x == 0 || m.getTo().x == (state.size - 1) ||
+                                  m.getTo().y == 0 || m.getTo().y == (state.size - 1))) {
         // if the king is on the edges, it wins
         // note: already checked if m.getTo() is a valid position, so only escapes tiles are possible
         state.setTurn(Turn::WhiteWin);
