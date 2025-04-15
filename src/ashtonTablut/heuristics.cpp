@@ -34,7 +34,7 @@ int8_t Heuristics::whiteHeuristics(const State& state) {
             score += 2;
             break;
         case 2:
-            score += 6;
+            score += 4;
     }
     
     // pieces
