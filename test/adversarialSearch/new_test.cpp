@@ -24,11 +24,6 @@ B - - - - - - - B
 - B - - + - W - - 
 - - - B B B - - - 
 
-*/
-
-
-int main (int argc, char **argv) {
-    State state;
     state.movePiece({4, 4}, {6, 6});
     state.movePiece({8, 3}, {5, 3});
     state.movePiece({1, 4}, {1, 7});
@@ -37,8 +32,63 @@ int main (int argc, char **argv) {
     state.movePiece({4, 6}, {6, 7});
     state.movePiece({7, 4}, {6, 4});
     state.removePiece({5, 4});
+SOLVED
+*/
+
+/*
+State read: 
+B - - + B + - - - 
+- - - - + - - - - 
+- - - W - B B - - 
+B - - W - W - - B 
+B B W - + - K + B 
+B - - W W - - - B 
+- - - - W W - - - 
+- - B - + - - - - 
+- - - B B B - - - 
+
+Finding best move...
+Metrics: Max Depth: 5, Nodes Expanded: 22398587
+Best move found, value: 32
+Time taken to find best move: 8000 ms
+Selected move from: [0,3] to: [0,1]
+Sending move: {"from":"a4","to":"a2","turn":"BLACK"}
+Not your turn.
+
+
+GAME OVER, FINAL STATE: 
+
+B - - + B + - - - 
+B - - - + - - - - 
+- - - W - B B - - 
++ - - W - W - - B 
+B B W - + - - + B 
+B - - W W - - - B 
+- - - - W W - - - 
+- - B - + - - - - 
+- - - B B B K - - 
+
+White wins!
+
+
+*/
+
+
+int main (int argc, char **argv) {
+    Piece pieces[9][9] = {
+        {Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty},
+        {Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty},
+        {Piece::Empty, Piece::Empty, Piece::Empty, Piece::White, Piece::Empty, Piece::Black, Piece::Black, Piece::Empty, Piece::Empty},
+        {Piece::Empty, Piece::Empty, Piece::Empty, Piece::White, Piece::Empty, Piece::White, Piece::Empty, Piece::Empty, Piece::Black},
+        {Piece::Black, Piece::Black, Piece::White, Piece::Empty, Piece::Empty, Piece::Empty, Piece::King,  Piece::Empty, Piece::Black},
+        {Piece::Black, Piece::Empty, Piece::Empty, Piece::White, Piece::White, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Black},
+        {Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::White, Piece::White, Piece::Empty, Piece::Empty, Piece::Empty},
+        {Piece::Empty, Piece::Empty, Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty},
+        {Piece::Empty, Piece::Empty, Piece::Empty, Piece::Black, Piece::Black, Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty}
+    };
+    
+    auto state = State(pieces, Turn::Black);
     std::cout << state.boardString() << std::endl;
-    state.setTurn(Turn::Black);
 
     int maxTime = atoi(argv[1]);
 
@@ -49,7 +99,8 @@ int main (int argc, char **argv) {
     
     
     // search
-    auto search = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 4, maxTime);
+    //auto search = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 0, maxTime);
+    auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, maxTime);
     Move move = search.makeDecision(state);
     
     // metrics
@@ -68,4 +119,18 @@ int main (int argc, char **argv) {
 
     state = Result::applyAction(state, move);
     std::cout << state.boardString() << std::endl;
+    std::cout << std::to_string( (int) state.getTurn()) << std::endl;
+
+    // white
+    //auto search2 = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 0, maxTime);
+    auto search2 = IteDeepAlphaBetaSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, maxTime);
+    move = search2.makeDecision(state);
+    cout << "Metrics: " << search2.getMetrics() << endl;
+    bestValue = Heuristics::getHeuristics(state, state.getTurn());
+    cout << "Best move found, value: " << to_string(bestValue) << endl;
+    cout << "Selected move from: [" << to_string(move.getFrom().x) << "," << to_string(move.getFrom().y)
+    << "] to: [" << to_string(move.getTo().x) << "," << to_string(move.getTo().y) << "]" << endl;
+    state = Result::applyAction(state, move);
+    std::cout << state.boardString() << std::endl;
+    std::cout << std::to_string( (int) state.getTurn()) << std::endl;
 }
