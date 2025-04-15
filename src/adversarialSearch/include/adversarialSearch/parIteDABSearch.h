@@ -6,6 +6,9 @@
 #include "vgame.h"
 #include "utilities.h"
 
+#ifndef PARITEDEEPABSEARCH_H
+#define PARITEDEEPABSEARCH_H
+
 using namespace std;
 
 template <class S, class A, class P, class U>
@@ -155,3 +158,5 @@ public:
         return metrics.toString();
     }
 };
+
+#endif // PARITEDEEPABSEARCH_H

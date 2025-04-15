@@ -1,10 +1,11 @@
 // common.h
-#ifndef COMMON_H
-#define COMMON_H
 
 #include <cstdint>
 #include <vector>
 #include <string>
+
+#ifndef COMMON_H
+#define COMMON_H
 
 struct cord {
     int8_t x;

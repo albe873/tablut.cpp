@@ -1,10 +1,10 @@
 // actions.h
 
-#ifndef ACTIONS_H
-#define ACTIONS_H
-
 #include "common.h"
 #include "state.h"
+
+#ifndef ACTIONS_H
+#define ACTIONS_H
 
 class Action {
 private:

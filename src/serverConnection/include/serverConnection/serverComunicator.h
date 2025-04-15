@@ -3,6 +3,9 @@
 #include "simpleJson.h"
 #include <netinet/in.h>
 
+#ifndef SERVER_COMUNICATOR_H
+#define SERVER_COMUNICATOR_H
+
 class ServerComunicator {
 private:
     int serverSocket;
@@ -34,3 +37,5 @@ public :
     void addHistoty(State& newState, const State& oldState);
 
 };
+
+#endif // SERVER_COMUNICATOR_H

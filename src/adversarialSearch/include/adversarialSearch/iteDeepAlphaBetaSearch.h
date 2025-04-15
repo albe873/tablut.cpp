@@ -5,6 +5,9 @@
 #include "vgame.h"
 #include "utilities.h"
 
+#ifndef INTDEEPABSEARCH_H
+#define INTDEEPABSEARCH_H
+
 using namespace std;
 
 template <class S, class A, class P, class U>
@@ -139,3 +142,5 @@ public:
         return metrics.toString();
     }
 };
+
+#endif // INTDEEPABSEARCH_H

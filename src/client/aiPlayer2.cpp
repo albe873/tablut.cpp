@@ -1,11 +1,9 @@
+// aiPlayer2.cpp
+
 #include <iostream>
 #include <string>
 
-#include <tablut/common.h>
-#include <tablut/state.h>
-#include <tablut/result.h>
 #include <tablut/game.h>
-#include <tablut/heuristics.h>
 #include <serverConnection/serverComunicator.h>
 #include <adversarialSearch/iteDeepAlphaBetaSearch.h>
 #include <adversarialSearch/parIteDABSearch.h>

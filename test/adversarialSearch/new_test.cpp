@@ -1,12 +1,11 @@
+// new_test.cpp
+// various tests for debug
+
 #include <iostream>
 #include <string>
 #include <chrono>
-#include <tablut/common.h>
-#include <tablut/state.h>
+
 #include <tablut/game.h>
-#include <tablut/heuristics.h>
-#include <tablut/actions.h>
-#include <tablut/result.h>
 #include <adversarialSearch/iteDeepAlphaBetaSearch.h>
 #include <adversarialSearch/parIteDABSearch.h>
 

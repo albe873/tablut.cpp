@@ -3,6 +3,9 @@
 #include "state.h"
 #include "common.h"
 
+#ifndef HEURISTIC_H
+#define HEURISTIC_H
+
 class Heuristics {
 public:
     static const int8_t max;
@@ -16,3 +19,5 @@ public:
 
     static int8_t getHeuristics(const State&, const Turn&);
 };
+
+#endif // HEURISTIC_H

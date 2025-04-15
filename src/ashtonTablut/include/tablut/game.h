@@ -2,8 +2,12 @@
 
 #include "adversarialSearch/vgame.h"
 #include "state.h"
+#include "heuristics.h"
+#include "result.h"
 #include <functional>
 
+#ifndef GAME_H
+#define GAME_H
 
 class Game : public VGame<State, Move, Turn, int8_t> {
 private:
@@ -34,3 +38,5 @@ public:
 
     int8_t getUtility(const State&, const Turn&) const override;
 };
+
+#endif // GAME_H

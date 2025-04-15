@@ -1,7 +1,7 @@
+// timer_test.cpp
+
 #include "gtest/gtest.h"
 #include "adversarialSearch/utilities.h"
-
-
 
 int main(int argc, char **argv) {
     std::cout << "timer test" << std::endl;
