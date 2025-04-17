@@ -10,9 +10,9 @@ const int Heuristics::blackDraw = -100;
 
 
 // weight constants for white
-const int w_bp = 55;        // prize
+const int w_bp = 65;        // prize, suggesting w_bp - w_wp > w_k_esc to prevent trades
 const int w_wp = 50;        // penalty
-const int w_best_pos = 2;   // prize
+const int w_best_pos = 2;   // prize, suggesting w_bp - w_wp > w_best_pos * 4 to prevent trades
 const int w_k_esc  = 10;    // prize
 const int w_k_surr = 10;    // penalty
 const int w_k_surr_nt = 5;  // penalty
@@ -20,7 +20,7 @@ const int w_k_surr_nt = 5;  // penalty
 // wheight constants for black
 const int b_bp = 45;        // penalty
 const int b_wp = 50;        // prize 
-const int b_best_pos = 2;   // prize
+const int b_best_pos = 2;   // prize  TODO: not implemented
 const int b_k_esc  = 10;    // penalty
 const int b_k_surr = 10;    // prize
 const int b_k_surr_nt = 5;  // prize
