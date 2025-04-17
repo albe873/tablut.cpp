@@ -62,7 +62,7 @@ inline void checkCaptureWhite(State& s, const cord& c, const cord& dir) {
         
         Piece checkPiece = s.getPiece(checkCord);
         
-        if (checkPiece == Piece::White || s.isThrone(checkCord) || s.isCamp(checkCord)) {
+        if (checkPiece == Piece::White || s.isThrone(checkCord) || s.isCamp(checkCord) || checkPiece == Piece::King) {
             // capture the piece
             s.removePiece(captureCord);
         }
