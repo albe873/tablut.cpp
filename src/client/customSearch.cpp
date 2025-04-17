@@ -9,7 +9,8 @@ template <typename S, typename A, typename P, typename U>
 class CustomSearch : public parIteDABSearch<S, A, P, U> {
 protected:
 
-    U evalTerminal(S state, P player, int depth) override {
+    // Penalize/reward terminal states based on depth
+    U evalTerminal(const S& state, const P& player, const int& depth) override {
         U utility = this->game.getUtility(state, player);
         if (utility == this->utilMax)
             return utility - depth;
@@ -20,7 +21,7 @@ protected:
     }
 
     // Ordering actions based on heuristic values
-    vector<A> orderActions(S state, vector<A> actions, P player, int depth) override {
+    vector<A> orderActions(const S& state, const vector<A>& actions, const P& player, const int& depth) override {
         if (actions.size() <= 1)
             return actions;
 

@@ -5,6 +5,8 @@
 
 #include <tablut/game.h>
 #include <serverConnection/serverComunicator.h>
+
+#define ENABLE_METRICS // enable metrics for parIteDABSearch
 #include <adversarialSearch/iteDeepAlphaBetaSearch.h>
 #include <adversarialSearch/parIteDABSearch.h>
 #include <adversarialSearch/parIteSempl.h>
@@ -48,7 +50,7 @@ void checkState(const State& serverState, const State& localState) {
 
 int main(int argc, char* argv[]) {
 
-    string name = "aiPlayer.cpp";
+    const string name = "Player1";
 
     int maxtime = 60;
     int safeTime = 2;
