@@ -14,3 +14,4 @@ target_link_libraries(aiPlayer2 tablut
                                 serverConnection
                                 adversarialSearch
 )
+target_compile_definitions(aiPlayer2 PRIVATE ENABLE_METRICS)

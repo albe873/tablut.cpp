@@ -13,8 +13,8 @@
 using namespace std;
 
 // Metrics are disabled by default
-// they can be enabled by defining ENABLE_METRICS: #define ENABLE_METRICS
-// or by passing -DENABLE_METRICS to the compiler
+// they can be enabled by defining ENABLE_METRICS in this file: #define ENABLE_METRICS
+// or (preferred way) by passing -DENABLE_METRICS to the compiler
 
 template <typename S, typename A, typename P, typename U>
 class parIteDABSearch {
