@@ -12,6 +12,10 @@
 
 using namespace std;
 
+// Metrics are disabled by default
+// they can be enabled by defining ENABLE_METRICS: #define ENABLE_METRICS
+// or by passing -DENABLE_METRICS to the compiler
+
 template <typename S, typename A, typename P, typename U>
 class parIteDABSearch {
 protected:
@@ -22,8 +26,10 @@ protected:
     Timer timer;
     SimpleMetrics metrics;
 
-    U maxValue(S& state, P player, U alpha, U beta, int depth) {
-        updateMetrics(depth);
+    U maxValue(S& state, P& player, U alpha, U beta, int depth) {
+        #ifdef ENALBE_METRICS
+            updateMetrics(depth);
+        #endif
 
         if (game.isTerminal(state))
             return evalTerminal(state, player, depth);
@@ -47,8 +53,10 @@ protected:
     }
 
 
-    U minValue(S& state, P player, U alpha, U beta, int depth) {
-        updateMetrics(depth);
+    U minValue(S& state, P& player, U alpha, U beta, int depth) {
+        #ifdef ENALBE_METRICS
+            updateMetrics(depth);
+        #endif
 
         if (game.isTerminal(state))
             return evalTerminal(state, player, depth);
@@ -57,7 +65,7 @@ protected:
             return eval(state, player);
         
         auto value = utilMax;
-    
+        
         auto actions = orderActions(state, game.getActions(state), player, depth);
         for (auto action : actions) {
             auto newState = game.getResult(state, action);
@@ -73,24 +81,24 @@ protected:
         this->currentDepthLimit++;
     }
 
-    virtual bool isSignificantlyBetter(U newUtility, U utility) {
+    virtual bool isSignificantlyBetter(const U& newUtility, const U& utility) {
         return false;
     }
 
-    virtual bool hasSafeWinner(U resultUtility) {
+    virtual bool hasSafeWinner(const U& resultUtility) {
         return resultUtility <= utilMin || resultUtility >= utilMax;
     }
 
-    virtual U eval(S state, P player) {
+    virtual U eval(const S& state, const P& player) {
         hEvalUsed = true;
         return game.getUtility(state, player);
     }
 
-    virtual U evalTerminal(S state, P player, int depth) {
+    virtual U evalTerminal(const S& state, const P& player, const int& depth) {
         return game.getUtility(state, player);
     }
 
-    virtual vector<A> orderActions(S state, vector<A> actions, P player, int depth) {
+    virtual vector<A> orderActions(const S& state, const vector<A>& actions, const P& player, const int& depth) {
         return actions;
     }
 
@@ -124,6 +132,7 @@ public:
             vector<actionUtility<A, U>> newResults;
             
             int maxI = 0;
+            omp_set_num_threads(4);
             #pragma omp parallel for schedule(dynamic, 1)
             for (int i = 0; i < results.size(); i++) {
                 auto actUtil = results[i];
