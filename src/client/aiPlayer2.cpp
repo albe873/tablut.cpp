@@ -7,6 +7,8 @@
 #include <serverConnection/serverComunicator.h>
 #include <adversarialSearch/iteDeepAlphaBetaSearch.h>
 #include <adversarialSearch/parIteDABSearch.h>
+#include <adversarialSearch/parIteSempl.h>
+#include "customSearch.cpp"
 
 using namespace std;
 
@@ -16,20 +18,20 @@ Move findBestMove(const Game& game, const State& state, int maxTime) {
     cout << "Finding best move..." << endl;
     
     // search
-    auto search = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 4, maxTime);
-    Move bestMove = search.makeDecision(state);
+    auto search = CustomSearch<State, Move, Turn, int>(game, Heuristics::min, Heuristics::max, 4, maxTime);
+    auto bestAction = search.makeDecision(state);
     
     // metrics
     cout << "Metrics: " << search.getMetrics() << endl;
     auto bestValue = Heuristics::getHeuristics(state, state.getTurn());
-    cout << "Best move found, value: " << to_string(bestValue) << endl;
+    cout << "Best move found, value: " << to_string(bestValue) << " playing for: " << to_string(bestAction.second) << endl;
 
     // time taken
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
     cout << "Time taken to find best move: " << duration.count() << " ms" << endl;
     
-    return bestMove;
+    return bestAction.first;
 }
 
 void checkState(const State& serverState, const State& localState) {

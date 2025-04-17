@@ -2,6 +2,7 @@
 
 #include <set>
 #include <omp.h>
+#include <algorithm>
 
 #include "vgame.h"
 #include "utilities.h"
@@ -11,9 +12,9 @@
 
 using namespace std;
 
-template <class S, class A, class P, class U>
+template <typename S, typename A, typename P, typename U>
 class parIteDABSearch {
-private:
+protected:
     const VGame<S, A, P, U>& game;
     U utilMax, utilMin;
     bool hEvalUsed;
@@ -21,10 +22,13 @@ private:
     Timer timer;
     SimpleMetrics metrics;
 
-    U maxValue(S state, P player, U alpha, U beta, int depth) {
+    U maxValue(S& state, P player, U alpha, U beta, int depth) {
         updateMetrics(depth);
-    
-        if (game.isTerminal(state) || depth >= currentDepthLimit || timer.isTimeOut())
+
+        if (game.isTerminal(state))
+            return evalTerminal(state, player, depth);
+
+        if (depth >= currentDepthLimit || timer.isTimeOut())
             return eval(state, player);
         
         auto value = utilMin;
@@ -43,10 +47,13 @@ private:
     }
 
 
-    U minValue(S state, P player, U alpha, U beta, int depth) {
+    U minValue(S& state, P player, U alpha, U beta, int depth) {
         updateMetrics(depth);
+
+        if (game.isTerminal(state))
+            return evalTerminal(state, player, depth);
     
-        if (game.isTerminal(state) || depth >= currentDepthLimit || timer.isTimeOut())
+        if (depth >= currentDepthLimit || timer.isTimeOut())
             return eval(state, player);
         
         auto value = utilMax;
@@ -62,26 +69,28 @@ private:
         return value;
     }
 
-
-protected:
-    void incrementDepthLimit() {
+    virtual void incrementDepthLimit() {
         this->currentDepthLimit++;
     }
 
-    bool isSignificantlyBetter(U newUtility, U utility) {
+    virtual bool isSignificantlyBetter(U newUtility, U utility) {
         return false;
     }
 
-    bool hasSafeWinner(U resultUtility) {
+    virtual bool hasSafeWinner(U resultUtility) {
         return resultUtility <= utilMin || resultUtility >= utilMax;
     }
 
-    U eval(S state, P player) {
+    virtual U eval(S state, P player) {
         hEvalUsed = true;
         return game.getUtility(state, player);
     }
 
-    vector<A> orderActions(S state, vector<A> actions, P player, int depth) {
+    virtual U evalTerminal(S state, P player, int depth) {
+        return game.getUtility(state, player);
+    }
+
+    virtual vector<A> orderActions(S state, vector<A> actions, P player, int depth) {
         return actions;
     }
 
@@ -98,7 +107,7 @@ public:
     : game(game), utilMin(utilMin), utilMax(utilMax), currentDepthLimit(startDepth), timer(maxTimeSeconds)
     {}
     
-    A makeDecision(S state) {
+    pair<A, U> makeDecision(S state) {
         metrics.reset();    
         this->timer.start();
         auto player = game.getPlayer(state);
@@ -151,7 +160,7 @@ public:
             
         } while (!timer.isTimeOut() && hEvalUsed);
         
-        return results[0].action;
+        return {results[0].action, results[0].utility};
     }
 
     std::string getMetrics() const {

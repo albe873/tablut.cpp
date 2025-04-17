@@ -5,7 +5,7 @@
 Game::Game(State initialState,
     std::function<std::vector<Move>(State)> actionsFunction,
     std::function<State(State, Move)> resultFunction,
-    std::function<int8_t(State, Turn)> utilityFunction)
+    std::function<int(State, Turn)> utilityFunction)
 {
     this->initialState = initialState;
     this->actionsFunction = actionsFunction;
@@ -37,6 +37,6 @@ bool Game::isTerminal(const State& state) const {
     return state.getTurn() == Turn::BlackWin || state.getTurn() == Turn::WhiteWin || state.getTurn() == Turn::Draw;
 }
 
-int8_t Game::getUtility(const State& state, const Turn& player) const {
+int Game::getUtility(const State& state, const Turn& player) const {
     return utilityFunction(state, player);
 }

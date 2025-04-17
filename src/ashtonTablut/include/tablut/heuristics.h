@@ -7,17 +7,27 @@
 #define HEURISTIC_H
 
 class Heuristics {
+private:
+
+    static int whiteHeuristics(const State&);
+    static int blackHeuristics(const State&);
+    static int kingEscapeRoutes(const State&);
+    static int kingSurrounding(const State&);
+    static int drawLogic(const State&, const Turn&);
+    static bool kingNearThrone(const State&);
+    static int whiteInBestPositions(const State&);
+
+    // weights and constants
+    static const std::vector<cord> bestPositionsWhite;
+    static const int whiteDraw;
+    static const int blackDraw;
+
 public:
-    static const int8_t max;
-    static const int8_t min;
+    static const int max;
+    static const int min;
+    static const bool nearThroneMask[State::size][State::size];
 
-    static int8_t whiteHeuristics(const State&);
-    static int8_t blackHeuristics(const State&);
-    static int8_t kingEscapeRoutes(const State&);
-    static int8_t kingSurrounding(const State&);
-
-
-    static int8_t getHeuristics(const State&, const Turn&);
+    static int getHeuristics(const State&, const Turn&);
 };
 
 #endif // HEURISTIC_H

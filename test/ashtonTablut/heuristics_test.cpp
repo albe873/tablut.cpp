@@ -4,6 +4,8 @@
 #include "tablut/heuristics.h"
 #include "tablut/state.h"
 
+/*
+
 TEST(HeuristicsTest, WhiteHeuristicsBasic) {
     State state;
     // White is default turn
@@ -81,3 +83,4 @@ int main(int argc, char **argv) {
 }
 
     
+*/

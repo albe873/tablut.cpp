@@ -9,19 +9,19 @@
 #ifndef GAME_H
 #define GAME_H
 
-class Game : public VGame<State, Move, Turn, int8_t> {
+class Game : public VGame<State, Move, Turn, int> {
 private:
     State initialState;
     std::function<std::vector<Move>(State)> actionsFunction;
     std::function<State(State, Move)> resultFunction;
-    std::function<int8_t(State, Turn)> utilityFunction;
+    std::function<int(State, Turn)> utilityFunction;
 
 public:
     // Constructor
     Game(State initialState,
          std::function<std::vector<Move>(State)> actionsFunction,
          std::function<State(State, Move)> resultFunction,
-         std::function<int8_t(State, Turn)> utilityFunction);
+         std::function<int(State, Turn)> utilityFunction);
     
     
     State getInitialState() const override;
@@ -36,7 +36,7 @@ public:
 
     bool isTerminal(const State&) const override;
 
-    int8_t getUtility(const State&, const Turn&) const override;
+    int getUtility(const State&, const Turn&) const override;
 };
 
 #endif // GAME_H

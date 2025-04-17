@@ -68,7 +68,60 @@ B - - W W - - - B
 - - - B B B K - - 
 
 White wins!
+SOLVED
 
+
+State read: 
+B - - + B B - - - 
+- - - - + - B - - 
+- - W - - - - - - 
++ - - - W W - - B 
+B B W W + B - + + 
+B - - - - - - - B 
+- W - - - W K B - 
+- - B - + - W - - 
+- B - + + + - - - 
+
+Finding best move...
+Metrics: Max Depth: 6, Nodes Expanded: 2587037
+Best move found, value: 27 playing for: -100
+Time taken to find best move: 7782 ms
+Selected move from: [0,5] to: [7,5]
+Sending move: {"from":"a6","to":"h6","turn":"BLACK"}
+Not your turn.
+State read: 
+B - - + B B - - - 
+- - - - + - B - - 
+- - W - - - - - - 
++ - - - W W - - B 
+B B W W + B - + + 
++ - - - - - - B B 
+- W - - - W K B - 
+- - B - + W - - - 
+- B - + + + - - - 
+
+Finding best move...
+Metrics: Max Depth: 2, Nodes Expanded: 128
+Best move found, value: 24 playing for: -100
+Time taken to find best move: 0 ms
+Selected move from: [8,3] to: [8,1]
+Sending move: {"from":"i4","to":"i2","turn":"BLACK"}
+Not your turn.
+
+
+GAME OVER, FINAL STATE: 
+
+B - - + B B - - - 
+- - - - + - B - B 
+- - W - - - - - - 
++ - - - W W - - + 
+B B W W + B - + + 
++ - - - - - - B B 
+- W - - - W - B - 
+- - B - + W - - - 
+- B - + + + K - - 
+
+White wins!
 
 */
 
@@ -98,9 +151,9 @@ int main (int argc, char **argv) {
     
     
     // search
-    auto search = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 3, maxTime);
-    //auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, maxTime);
-    Move move = search.makeDecision(state);
+    auto search = parIteDABSearch<State, Move, Turn, int>(game, Heuristics::min, Heuristics::max, 3, maxTime);
+    //auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int>(game, Heuristics::min, Heuristics::max, maxTime);
+    Move move = search.makeDecision(state).first;
     
     // metrics
     cout << "Metrics: " << search.getMetrics() << endl;
@@ -121,9 +174,9 @@ int main (int argc, char **argv) {
     std::cout << std::to_string( (int) state.getTurn()) << std::endl;
 
     // white
-    auto search2 = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 3, maxTime);
-    //auto search2 = IteDeepAlphaBetaSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, maxTime);
-    move = search2.makeDecision(state);
+    auto search2 = parIteDABSearch<State, Move, Turn, int>(game, Heuristics::min, Heuristics::max, 3, maxTime);
+    //auto search2 = IteDeepAlphaBetaSearch<State, Move, Turn, int>(game, Heuristics::min, Heuristics::max, maxTime);
+    move = search2.makeDecision(state).first;
     cout << "Metrics: " << search2.getMetrics() << endl;
     bestValue = Heuristics::getHeuristics(state, state.getTurn());
     cout << "Best move found, value: " << to_string(bestValue) << endl;
