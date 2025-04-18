@@ -6,10 +6,8 @@
 #include <tablut/game.h>
 #include <serverConnection/serverComunicator.h>
 
-#define ENABLE_METRICS // enable metrics for parIteDABSearch
 #include <adversarialSearch/iteDeepAlphaBetaSearch.h>
 #include <adversarialSearch/parIteDABSearch.h>
-#include <adversarialSearch/parIteSempl.h>
 #include "customSearch.cpp"
 
 using namespace std;
@@ -37,11 +35,12 @@ Move findBestMove(const Game& game, const State& state, int maxTime) {
 }
 
 void checkState(const State& serverState, const State& localState) {
-    int8_t expectedHash = localState.softHash();
-    int8_t actualHash = serverState.hash();
-    if (expectedHash != actualHash) {
-        cerr << "State hash mismatch. Server: " << to_string(expectedHash) 
-             << ", Local: " << to_string(actualHash) << endl;
+    auto server_hash = serverState.hash64();
+    auto local_hash = localState.hash64();
+    if (server_hash != local_hash) {
+        cerr << "Hash mismatch!" << endl;
+        cerr << "Server hash: " << to_string(server_hash) << endl;
+        cerr << "Local hash: " << to_string(local_hash) << endl;
         cerr << "Server state: " << endl << serverState.boardString() << endl;
         cerr << "Local state: " << endl << localState.boardString() << endl;
         exit(1);
@@ -118,22 +117,40 @@ int main(int argc, char* argv[]) {
 
     Game game = Game(State(), Action::getActions, Result::applyAction, Heuristics::getHeuristics);
 
-    State state, result;
+    bool first_move = true;
+    State state, oldState, result;
     Turn turn;
     while (true) {
         // read state
         state = client.readState();
         turn = state.getTurn();
+
+        // game end check
         if (turn == Turn::BlackWin || turn == Turn::WhiteWin || turn == Turn::Draw || turn == (Turn) -1)
             break;
 
+        // check if is my turn
         if (turn != team) {
             cout << "Not your turn." << endl;
             if (strictServerCheck)
                 checkState(state, result);
+            
+            // continue, wait and read another state
             continue;
         }
+
+        // my turn
         cout << "State read: \n" << state.boardString() << endl;
+
+        // the state received has no history
+        // add history to the new received state (for Draw)
+        // special case: the first move has no history -> no copy
+        if (!first_move)
+            client.addHistory(state, oldState);
+        else
+            first_move = false;
+        
+        oldState = state;
 
         // get possible moves
         vector<Move> moves = Action::getActions(state);

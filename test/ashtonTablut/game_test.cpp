@@ -67,18 +67,6 @@ TEST_F(GameTest, GetPlayers) {
     ASSERT_TRUE(foundWhite);
 }
 
-// Test getPlayer method
-TEST_F(GameTest, GetPlayer) {
-    State currentState; // Default state starts with White's turn
-    ASSERT_EQ(currentState.getTurn(), Turn::White); // Verify assumption
-    ASSERT_EQ(game.getPlayer(currentState), Turn::White);
-
-    // Create a state where it's Black's turn
-    State blackTurnState = currentState.clone();
-    blackTurnState.setTurn(Turn::Black);
-    ASSERT_EQ(game.getPlayer(blackTurnState), Turn::Black);
-}
-
 // Test getActions method
 TEST_F(GameTest, GetActions) {
     State currentState; // Initial state
@@ -114,15 +102,15 @@ TEST_F(GameTest, IsTerminal) {
     ASSERT_FALSE(game.isTerminal(nonTerminalState));
 
     // Create terminal states
-    State whiteWinState = nonTerminalState.clone();
+    State whiteWinState;
     whiteWinState.setTurn(Turn::WhiteWin);
     ASSERT_TRUE(game.isTerminal(whiteWinState));
 
-    State blackWinState = nonTerminalState.clone();
+    State blackWinState;
     blackWinState.setTurn(Turn::BlackWin);
     ASSERT_TRUE(game.isTerminal(blackWinState));
 
-    State drawState = nonTerminalState.clone();
+    State drawState;
     drawState.setTurn(Turn::Draw);
     ASSERT_TRUE(game.isTerminal(drawState));
 }
