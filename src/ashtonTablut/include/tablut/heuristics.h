@@ -16,9 +16,11 @@ private:
     static int drawLogic(const State&, const Turn&);
     static bool kingNearThrone(const State&);
     static int whiteInBestPositions(const State&);
+    static int blackInBestPositions(const State&);
 
     // weights and constants
     static const std::vector<cord> bestPositionsWhite;
+    static const std::vector<cord> bestPositionsBlack;
     static const int whiteDraw;
     static const int blackDraw;
 
