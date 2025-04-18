@@ -78,16 +78,20 @@ State::State() {
     // King
     board[throne.y][throne.x] = Piece::King;
     kingPos = throne;
-    
-    hashHistory = std::vector<int16_t>();
-    hashHistory.push_back(softHash());
 
     // Set the number of pieces
     whiteP = 8;
     blackP = 16;
+
+    // Initialize Zobrist hashing
+    initZobrist();
+    calculateZobrist();
+
+    hashHistory = std::vector<int16_t>();
+    hashHistory.push_back(softHash());
 }
 
-State::State(const Piece (&board)[9][9], Turn turn, std::vector<int16_t> hashHistory) {
+State::State(const Piece (&board)[size][size], Turn turn, std::vector<int16_t> hashHistory) {
     this->turn = turn;
     std::memcpy(this->board, board, sizeof(this->board));
     this->hashHistory = hashHistory;
@@ -104,10 +108,51 @@ State::State(const Piece (&board)[9][9], Turn turn, std::vector<int16_t> hashHis
                 kingPos = {x, y};
         }
     }
+
+    // Initialize Zobrist hashing
+    initZobrist();
+    calculateZobrist();
 }
-State::State(const Piece (&board)[9][9], Turn turn) 
+
+State::State(const Piece (&board)[size][size], Turn turn) 
     : State(board, turn, std::vector<int16_t>()) {}
 
+
+
+// ------ Zobrist hashing ------
+
+long State::zobrish_table[State::size][State::size][4];
+
+inline void State::initZobrist() {
+    static bool initialized = false;    // remain between calls
+    if (initialized)
+        return;
+    initialized = true;
+
+
+    std::mt19937_64 rng(0xAAAAAAAAAAAAAAAAULL);
+    for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++)
+            for (int p = 0; p < 4; p++)
+                zobrish_table[y][x][p] = rng();
+
+}
+
+inline void State::calculateZobrist() {
+    hash_64_value = 0;
+    for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++)
+            if (board[y][x] != Piece::Empty)
+                hash_64_value ^= zobrish_table[y][x][static_cast<int>(board[y][x])];
+}
+
+inline void State::updateZobrist(const cord& c, const Piece& piece) {
+    hash_64_value ^= zobrish_table[c.y][c.x][static_cast<int>(piece)];
+}
+
+long State::hash64() const {
+    return hash_64_value;
+}
 
 
 // ------ Interact functions ------
@@ -124,14 +169,16 @@ void State::setTurn(Turn newTurn) {
 }
 
 void State::removePiece(const cord& c) {
+    Piece toRemove = board[c.y][c.x];
     // update pieces count
-    if (board[c.y][c.x] == Piece::White)
+    if (toRemove == Piece::White)
         whiteP--;
-    else if (board[c.y][c.x] == Piece::Black)
+    else if (toRemove == Piece::Black)
         blackP--;
     
     // remove the piece
     board[c.y][c.x] = Piece::Empty;
+    updateZobrist(c, toRemove);
 
     // clear history, the same state cannot be repeated
     clearHistory();
@@ -144,6 +191,13 @@ void State::movePiece(const cord& from, const cord& to) {
         kingPos = to;
     
     board[from.y][from.x] = Piece::Empty;
+    
+    // update zobrish hash
+    updateZobrist(from, toMove);
+    updateZobrist(to, toMove);
+
+    // update history
+    hashHistory.push_back(softHash());
 }
 
 Piece State::getPiece(const cord& c) const {
@@ -166,12 +220,11 @@ cord State::getKingPosition() const {
 
 bool State::isHistoryRepeated() {
     int hash = softHash();
-    for (int i = 0; i < hashHistory.size(); i++) {
+    const int end = hashHistory.size() - 1;
+    for (int i = 0; i < end; i++) {
         if (hashHistory[i] == hash)
             return true;
     }
-    // If not found, add to history
-    hashHistory.push_back(hash);
     return false;  
 }
 void State::clearHistory() {
@@ -182,6 +235,10 @@ void State::setHistory(std::vector<int16_t> history) {
 }
 std::vector<int16_t> State::getHistory() const {
     return hashHistory;
+}
+
+void State::recalculateZobrist() {
+    calculateZobrist();
 }
 
 
@@ -213,13 +270,6 @@ std::string State::boardString() const {
 }
 
 
-// Utility to clone the state
-State State::clone() const {
-    return State(this->board, this->turn, this->hashHistory);
-}
-
-
-
 // ------ equals and hash functions ------
 
 bool State::equals(const State& other) const {
@@ -247,15 +297,9 @@ bool State::equals(const State& other) const {
     return true;
 }
 
-// Hash only the board, to use for History
+// Hash only the board, to use for History and Transposition Table
 int16_t State::softHash() const {
-    int hash = 0;
-    for (int y = 0; y < size; y++) {
-        for (int x = 0; x < size; x++) {
-            hash ^= static_cast<int16_t>(board[y][x]) * (x + 1) * (y*8 + 1);
-        }
-    }
-    return hash;
+    return (int16_t)(hash_64_value);
 }
 
 int State::hash() const {

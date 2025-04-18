@@ -11,6 +11,7 @@ private:
     int serverSocket;
     struct sockaddr_in serverAddress;
     char buffer[1024];
+
 public :
 
     static const int whiteDefPort = 5800;
@@ -34,7 +35,7 @@ public :
 
     // Utility Methods
     // add History to new state based on the old state 
-    void addHistoty(State& newState, const State& oldState);
+    void addHistory(State& newState, const State& oldState);
 
 };
 

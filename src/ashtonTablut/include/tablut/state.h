@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cstring>
 #include <algorithm>
+#include <random>
 
 #include "common.h"
 
@@ -36,6 +37,14 @@ private:
     int8_t whiteP;
     int8_t blackP;
     cord kingPos;
+
+    // Zobrist hashing
+    long hash_64_value;
+    static long zobrish_table[9][9][4];
+    void initZobrist();
+    void calculateZobrist();
+    void updateZobrist(const cord& c, const Piece& piece);
+
 public:
     static const int8_t size = 9;
     Piece board[size][size];
@@ -80,14 +89,15 @@ public:
     void clearHistory();
     void setHistory(std::vector<int16_t> history);
     std::vector<int16_t> getHistory() const;
+    void recalculateZobrist();
     
     // Print Utilities
     std::string boardString() const;
 
-    State clone() const;
     bool equals(const State& other) const;
     int16_t softHash() const;
     int hash() const;
+    long hash64() const;
 };
 
 #endif // STATE_H
