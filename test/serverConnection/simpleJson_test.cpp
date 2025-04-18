@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 #include <serverConnection/simpleJson.h>
+#include <serverConnection/serverComunicator.h>
+#include <tablut/state.h>
+#include <tablut/result.h>
 
 TEST(SimpleJsonTest, JsonMoveConversion) {
     Move move = {{4, 4}, {5, 5}};
@@ -15,10 +18,11 @@ TEST(SimpleJsonTest, JsonMoveConversion) {
 }
 
 TEST(SimpleJsonTest, JsonStateConversion) {
+    State initState;
+
     std::string json = "{\"board\":[[\"EMPTY\",\"EMPTY\",\"EMPTY\",\"BLACK\",\"BLACK\",\"BLACK\",\"EMPTY\",\"EMPTY\",\"EMPTY\"],[\"EMPTY\",\"EMPTY\",\"EMPTY\",\"EMPTY\",\"BLACK\",\"EMPTY\",\"EMPTY\",\"EMPTY\",\"EMPTY\"],[\"EMPTY\",\"EMPTY\",\"EMPTY\",\"EMPTY\",\"WHITE\",\"EMPTY\",\"EMPTY\",\"EMPTY\",\"EMPTY\"],[\"BLACK\",\"EMPTY\",\"EMPTY\",\"EMPTY\",\"WHITE\",\"EMPTY\",\"EMPTY\",\"EMPTY\",\"BLACK\"],[\"BLACK\",\"BLACK\",\"WHITE\",\"WHITE\",\"KING\",\"WHITE\",\"WHITE\",\"BLACK\",\"BLACK\"],[\"BLACK\",\"EMPTY\",\"EMPTY\",\"EMPTY\",\"WHITE\",\"EMPTY\",\"EMPTY\",\"EMPTY\",\"BLACK\"],[\"EMPTY\",\"EMPTY\",\"EMPTY\",\"EMPTY\",\"WHITE\",\"EMPTY\",\"EMPTY\",\"EMPTY\",\"EMPTY\"],[\"EMPTY\",\"EMPTY\",\"EMPTY\",\"EMPTY\",\"BLACK\",\"EMPTY\",\"EMPTY\",\"EMPTY\",\"EMPTY\"],[\"EMPTY\",\"EMPTY\",\"EMPTY\",\"BLACK\",\"BLACK\",\"BLACK\",\"EMPTY\",\"EMPTY\",\"EMPTY\"]],\"turn\":\"WHITE\"}";
     State state = SimpleJson::fromJson(json);
-    std::cout << "Generated State: " << state.boardString() << std::endl;
-    State initState;
+
     ASSERT_EQ(state.softHash(), initState.softHash());
     ASSERT_EQ(state.getTurn(), Turn::White);
 }
@@ -117,11 +121,59 @@ TEST(SimpleJsonTest, JsonStateConversion2) {
     expected.board[8][7] = Piece::Empty;
     expected.board[8][8] = Piece::Empty;
 
+    expected.recalculateZobrist();
+
     expected.setTurn(Turn::White);
+
     std::cout << "Generated State: " << state.boardString() << std::endl;
     std::cout << "Expected State: " << expected.boardString() << std::endl;
     ASSERT_EQ(state.softHash(), expected.softHash());
     ASSERT_EQ(state.getTurn(), Turn::White);
+}
+
+TEST(SimpleJsonTest, setHistory) {
+    State state1, state2;
+    std::vector<int16_t> history = {1, 2, 3, 4, 5};
+    state1.movePiece({0, 3}, {1, 3});
+    state1.removePiece({1, 3});
+    auto hash1 = state1.softHash();
+    state2.movePiece({0, 3}, {1, 3});
+    state2.removePiece({1, 3});
+    
+    //state2.setHistory(state1.getHistory());
+    auto hash2 = state2.softHash();
+    auto history1 = state1.getHistory();
+    auto history2 = state2.getHistory();
+    ASSERT_EQ(history1.size(), history2.size());
+    for (size_t i = 0; i < history1.size(); ++i) {
+        ASSERT_EQ(history1[i], history2[i]);
+    }
+    ASSERT_EQ(hash1, hash2);
+
+    State state3;
+    state3.movePiece({0, 3}, {1, 3});
+    state3.removePiece({1, 3}); // history empty
+    state3.movePiece({1, 3}, {2, 3});   // history = 1
+    state3.movePiece({2, 3}, {3, 3});
+    state3.setHistory(std::vector<int16_t>()); // history empty
+    ASSERT_EQ(state3.getHistory().size(), 0);
+
+    State result = Result::applyAction(state2, Move({1, 3}, {2, 3})); // history = 1
+    result = Result::applyAction(result, Move({2, 3}, {3, 3})); // history = 2
+    ASSERT_EQ(result.getHistory().size(), 2);
+
+    auto result_history = result.getHistory();
+    auto result_truncated = result_history;
+    result_truncated.pop_back();
+
+    ServerComunicator sc = ServerComunicator("localhost", 5800);
+    result.setHistory(result_truncated);
+    sc.addHistory(state3, result);
+    result.setHistory(result_history);
+    
+    auto state3_history = state3.getHistory();
+
+    ASSERT_EQ(result_history.size(), state3_history.size());
 }
 
 int main(int argc, char **argv) {

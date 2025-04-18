@@ -10,8 +10,8 @@ const int Heuristics::blackDraw = -100;
 
 
 // weight constants for white
-const int w_bp = 65;        // prize, suggesting w_bp - w_wp > w_k_esc to prevent trades
-const int w_wp = 50;        // penalty
+const int w_bp = 50;        // prize, suggesting w_bp - w_wp > w_k_esc to prevent trades
+const int w_wp = 70;        // penalty
 const int w_best_pos = 2;   // prize, suggesting w_bp - w_wp > w_best_pos * 4 to prevent trades
 const int w_k_esc  = 10;    // prize
 const int w_k_surr = 10;    // penalty
@@ -20,7 +20,7 @@ const int w_k_surr_nt = 5;  // penalty
 // wheight constants for black
 const int b_bp = 45;        // penalty
 const int b_wp = 50;        // prize 
-const int b_best_pos = 2;   // prize  TODO: not implemented
+const int b_best_pos = 1;   // prize
 const int b_k_esc  = 10;    // penalty
 const int b_k_surr = 10;    // prize
 const int b_k_surr_nt = 5;  // prize
@@ -87,9 +87,13 @@ inline int Heuristics::blackHeuristics(const State& state) {
     else
         score += kingSurrounding(state) * b_k_surr;
 
-
+    // best positions
+    int8_t blackPieces = state.getBlackPieces();
+    if (12 - blackPieces <= 0) // only if there are more than 12 pieces (13, 14, 15)
+        score += blackInBestPositions(state) * b_best_pos;
+    
     // pieces
-    score += state.getBlackPieces() * b_bp;
+    score += blackPieces * b_bp;
     score -= state.getWhitePieces() * b_wp;
 
     return score;
@@ -222,6 +226,17 @@ inline int Heuristics::whiteInBestPositions(const State& state) {
     int score = 0;
     for (cord pos : bestPositionsWhite) {
         if (state.getPiece(pos) == Piece::White)
+            score++;
+    }
+    return score;
+}
+
+const std::vector<cord> Heuristics::bestPositionsBlack = {{1, 2}, {1, 6}, {2, 1}, {2, 7}, {7, 2}, {7, 6}, {6, 1}, {6, 7} };
+
+inline int Heuristics::blackInBestPositions(const State& state) {
+    int score = 0;
+    for (cord pos : bestPositionsBlack) {
+        if (state.getPiece(pos) == Piece::Black)
             score++;
     }
     return score;

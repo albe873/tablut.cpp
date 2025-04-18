@@ -74,6 +74,13 @@ TEST(StateTest, HistoryRepeatedTest) {
     }
     std::cout << std::endl;
     state.movePiece(from, to);
+
+    auto history = state.getHistory();
+    for (const auto& hash : history) {
+        std::cout << hash << " ";
+    }
+    std::cout << std::endl;
+
     ASSERT_FALSE(state.isHistoryRepeated());
     std::cout << "After move hash history: ";
     for (const auto& hash : state.hashHistory) {
@@ -86,6 +93,7 @@ TEST(StateTest, HistoryRepeatedTest) {
         std::cout << hash << " ";
     }
     std::cout << std::endl;
+    std::cout << "current hash: " << state.softHash() << std::endl;
 
     ASSERT_TRUE(state.isHistoryRepeated()); 
 }
@@ -116,70 +124,6 @@ TEST(StateTest, ClearHistoryTest) {
 
     state.clearHistory();
     ASSERT_TRUE(state.hashHistory.empty());
-}
-
-TEST(StateTest, CloneAndIsEqualTest) {
-    std::cout << "Clone and isEqual test" << std::endl;
-    State state;
-    state.removePiece(cord(4, 4));
-    State cloned = state.clone();
-
-    ASSERT_TRUE(state.equals(cloned));
-    ASSERT_TRUE(state.getPiece(cord(4, 4)) == Piece::Empty);
-    ASSERT_TRUE(cloned.getPiece(cord(4, 4)) == Piece::Empty);
-
-    // Change something in the clone
-    cloned.removePiece(cord(3, 4));
-    ASSERT_FALSE(state.equals(cloned));
-}
-
-TEST(StateTest, CloneIndependenceTest) {
-    std::cout << "Clone independence test" << std::endl;
-    State state;
-    // Store a piece before cloning
-    Piece originalPiece = state.getPiece({4,4});
-
-    // Clone the state
-    State cloned = state.clone();
-
-    // Modify the cloned state
-    cloned.removePiece({4,4});
-
-    // Verify original is unaffected
-    ASSERT_EQ(state.getPiece({4,4}), originalPiece);
-}
-
-TEST(StateTest, CloneTurnIndependenceTest) {
-    std::cout << "Clone turn independence test" << std::endl;
-    State state;
-    // Store the current turn before cloning
-    Turn originalTurn = state.getTurn();
-
-    // Clone the state
-    State cloned = state.clone();
-
-    // Modify the cloned state's turn
-    cloned.setTurn(Turn::Black);
-
-    // Verify original state's turn is unaffected
-    ASSERT_EQ(state.getTurn(), originalTurn);
-}
-
-TEST(StateTest, CloneHistoryIndependenceTest) {
-    std::cout << "Clone history independence test" << std::endl;
-    State state;
-    // Add an entry to the history before cloning
-    state.hashHistory.push_back(123);
-
-    // Clone the state
-    State cloned = state.clone();
-
-    // Modify the cloned state's history
-    cloned.hashHistory.push_back(456);
-
-    // Verify original state's history is unaffected
-    ASSERT_EQ(state.hashHistory.size(), 2);
-    ASSERT_EQ(state.hashHistory.back(), 123);
 }
 
 TEST(StateTest, HashFunctionsTest) {

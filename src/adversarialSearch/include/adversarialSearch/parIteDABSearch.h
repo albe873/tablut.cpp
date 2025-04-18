@@ -27,7 +27,7 @@ protected:
     SimpleMetrics metrics;
 
     U maxValue(S& state, P& player, U alpha, U beta, int depth) {
-        #ifdef ENALBE_METRICS
+        #ifdef ENABLE_METRICS
             updateMetrics(depth);
         #endif
 
@@ -54,7 +54,7 @@ protected:
 
 
     U minValue(S& state, P& player, U alpha, U beta, int depth) {
-        #ifdef ENALBE_METRICS
+        #ifdef ENABLE_METRICS 
             updateMetrics(depth);
         #endif
 
@@ -132,7 +132,7 @@ public:
             vector<actionUtility<A, U>> newResults;
             
             int maxI = 0;
-            omp_set_num_threads(4);
+            //omp_set_num_threads(4);
             #pragma omp parallel for schedule(dynamic, 1)
             for (int i = 0; i < results.size(); i++) {
                 auto actUtil = results[i];
