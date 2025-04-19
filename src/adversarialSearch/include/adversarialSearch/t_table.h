@@ -102,7 +102,8 @@ public:
     }
 
     U probe(int64_t hash, U alpha, U beta, int depth) {
-
+        
+        std::lock_guard<std::mutex> lock(mtx);
         int index = getIndex(hash);
         auto& entry = table[index];
 
