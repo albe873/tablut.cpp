@@ -27,6 +27,7 @@ private:
 public:
     static const int max;
     static const int min;
+    static const int unknown;
     static const bool nearThroneMask[State::size][State::size];
 
     static int getHeuristics(const State&, const Turn&);

@@ -21,7 +21,8 @@ public:
     Game(State initialState,
          std::function<std::vector<Move>(State)> actionsFunction,
          std::function<State(State, Move)> resultFunction,
-         std::function<int(State, Turn)> utilityFunction);
+         std::function<int(State, Turn)> utilityFunction,
+         int util_min, int util_max, int util_unknown);
     
     
     State getInitialState() const override;

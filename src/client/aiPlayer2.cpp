@@ -18,7 +18,7 @@ Move findBestMove(const Game& game, const State& state, int maxTime) {
     cout << "Finding best move..." << endl;
     
     // search
-    auto search = CustomSearch<State, Move, Turn, int>(game, Heuristics::min, Heuristics::max, 4, maxTime);
+    auto search = CustomSearch<State, Move, Turn, int>(game, 4, maxTime);
     auto bestAction = search.makeDecision(state);
     
     // metrics
@@ -115,7 +115,11 @@ int main(int argc, char* argv[]) {
     }
     cout << "Name sent to server." << endl;
 
-    Game game = Game(State(), Action::getActions, Result::applyAction, Heuristics::getHeuristics);
+    Game game = Game(State(), 
+                     Action::getActions, 
+                     Result::applyAction, 
+                     Heuristics::getHeuristics, 
+                     Heuristics::min, Heuristics::max, Heuristics::unknown);
 
     bool first_move = true;
     State state, oldState, result;

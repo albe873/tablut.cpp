@@ -33,6 +33,8 @@ private:
     std::mutex mtx;
     u_int maxDepth;
     u_long nodesExpanded;
+    u_int tt_miss;
+    u_int tt_hit;
 public:
     SimpleMetrics();
     void reset();
@@ -40,6 +42,12 @@ public:
     void updateMaxDepth(u_int depth);
     u_int getMaxDepth() const;
     u_long getNodesExpanded() const;
+    
+    // transposition table metrics
+    u_int getTTMiss() const;
+    u_int getTTHit() const;
+    void incrementTTMiss();
+    void incrementTTHit();
     std::string toString() const;
 };
 

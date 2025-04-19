@@ -4,6 +4,7 @@
 
 const int Heuristics::max = 1000;
 const int Heuristics::min = -1000;
+const int Heuristics::unknown = max + 1;
 
 const int Heuristics::whiteDraw = 100;
 const int Heuristics::blackDraw = -100;

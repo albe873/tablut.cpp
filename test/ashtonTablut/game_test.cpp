@@ -30,7 +30,11 @@ protected:
                     game(initialState,
                         Action::getActions,      // Use actual actions function from actions.h
                         Result::applyAction,     // Use actual result function from result.h
-                        Heuristics::getHeuristics) {}
+                        Heuristics::getHeuristics,
+                        Heuristics::min,
+                        Heuristics::max,
+                        Heuristics::unknown
+                    ) {}
 
     // Helper to compare vectors of Moves (ignores order)
     bool compareMoveVectors(const std::vector<Move>& v1, const std::vector<Move>& v2) {

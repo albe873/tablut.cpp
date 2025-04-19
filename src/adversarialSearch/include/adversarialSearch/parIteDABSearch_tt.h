@@ -6,73 +6,171 @@
 
 #include "vgame.h"
 #include "utilities.h"
+#include "t_table.h"
 
-#ifndef PARITEDEEPABSEARCH_H
-#define PARITEDEEPABSEARCH_H
+#ifndef PARITEDEEPABSEARCHTT_H
+#define PARITEDEEPABSEARCHTT_H
 
 using namespace std;
+
+/*
+pseudo code for the transposition table
+https://people.csail.mit.edu/plaat/mtdf.html#abmem
+
+if retrieve(n) == OK then // Transposition table lookup
+
+if n.lowerbound >= beta then return n.lowerbound;
+if n.upperbound <= alpha then return n.upperbound;
+alpha := max(alpha, n.lowerbound);
+beta := min(beta, n.upperbound);
+
+if d == 0 then g := evaluate(n); // leaf node
+else if n == MAXNODE then
+
+g := -INFINITY; a := alpha; // save original alpha value
+c := firstchild(n);
+while (g < beta) and (c != NOCHILD) do
+    g := max(g, AlphaBetaWithMemory(c, a, beta, d - 1));
+    a := max(a, g);
+    c := nextbrother(c);
+
+else // n is a MINNODE
+
+g := +INFINITY; b := beta; // save original beta value 
+c := firstchild(n);
+while (g > alpha) and (c != NOCHILD) do
+    g := min(g, AlphaBetaWithMemory(c, alpha, b, d - 1));
+    b := min(b, g);
+    c := nextbrother(c);
+
+// Traditional transposition table storing of bounds
+// Fail low result implies an upper bound
+if g <= alpha then n.upperbound := g; store n.upperbound;
+// Found an accurate minimax value - will not occur if called with zero window
+if g >  alpha and g < beta then
+
+n.lowerbound := g; n.upperbound := g; store n.lowerbound, n.upperbound;
+
+// Fail high result implies a lower bound
+if g >= beta then n.lowerbound := g; store n.lowerbound;
+return g;
+
+*/
 
 // Metrics are disabled by default
 // they can be enabled by defining ENABLE_METRICS in this file: #define ENABLE_METRICS
 // or (preferred way) by passing -DENABLE_METRICS to the compiler
 
 template <typename S, typename A, typename P, typename U>
-class parIteDABSearch {
+class parIteDABSearch_tt {
+private:
+    void inline updateMiss() {
+        #ifdef ENABLE_METRICS
+            metrics.incrementTTMiss();
+        #endif
+    }
+    void inline updateHit() {
+        #ifdef ENABLE_METRICS
+            metrics.incrementTTHit();
+        #endif
+    }
+    void updateMetrics(int depth) {
+        #ifdef ENABLE_METRICS
+            metrics.updateMaxDepth(depth);
+            metrics.incrementNodesExpanded();
+        #endif
+    }
+
 protected:
     const VGame<S, A, P, U>& game;
     bool hEvalUsed;
     int currentDepthLimit;
     Timer timer;
     SimpleMetrics metrics;
+    t_table<U, A> table;
 
     U maxValue(S& state, P& player, U alpha, U beta, int depth) {
-        #ifdef ENABLE_METRICS
-            updateMetrics(depth);
-        #endif
+        updateMetrics(depth);
 
-        if (game.isTerminal(state))
-            return evalTerminal(state, player, depth);
+        if (game.isTerminal(state)) {
+            U value = eval(state, player);
+            //table.insert(state.hash64(), entry_type::exact, value, depth);
+            return evalTerminal(value, player, depth);
+        }
 
         if (depth >= currentDepthLimit || timer.isTimeOut())
             return eval(state, player);
         
-        auto value = game.util_min;
-    
+        // Check transposition table
+        auto hash = state.hash64();
+        auto value = table.probe(hash, alpha, beta, depth);
+        if (value != game.util_unknown) {
+            updateHit();
+            return evalTerminal(value, player, depth);
+        }
+        updateMiss();
+        
+        value = game.util_min;
+
         auto actions = orderActions(state, game.getActions(state), player, depth);
         for (auto action : actions) {
       
             auto newState = game.getResult(state, action);
             value = max(value, minValue(newState, player, alpha, beta, depth + 1));
             
-            if (value >= beta)
+            if (value >= beta) {
+                // Insert in transposition table
+                table.insert(hash, entry_type::l_bound, value, depth);
+                // cutoff
                 return value;
+            }
+            
+            // recursive call
             alpha = max(alpha, value);
         }
+
         return value;
     }
 
 
     U minValue(S& state, P& player, U alpha, U beta, int depth) {
-        #ifdef ENABLE_METRICS 
-            updateMetrics(depth);
-        #endif
+        updateMetrics(depth);
 
-        if (game.isTerminal(state))
-            return evalTerminal(state, player, depth);
+        if (game.isTerminal(state)) {
+            U value = eval(state, player);
+            //table.insert(state.hash64(), entry_type::exact, value, depth);
+            return evalTerminal(value, player, depth);
+        }
     
         if (depth >= currentDepthLimit || timer.isTimeOut())
             return eval(state, player);
         
-        auto value = game.util_max;
+        // Check transposition table
+        auto hash = state.hash64();
+        auto value = table.probe(hash, alpha, beta, depth);
+        if (value != game.util_unknown) {
+            updateHit();
+            return evalTerminal(value, player, depth);
+        }
+        updateMiss();
+
+        value = game.util_max;
+        // save original beta for the transposition table
+        U original_beta = beta;
         
         auto actions = orderActions(state, game.getActions(state), player, depth);
         for (auto action : actions) {
             auto newState = game.getResult(state, action);
             value = min(value, maxValue(newState, player, alpha, beta, depth + 1));
-            if (value <= alpha)
-                return value;
+            
+            if (value <= alpha) {
+                table.insert(hash, entry_type::u_bound, value, depth);
+                break;
+            }
+
             beta = min(beta, value);
         }
+
         return value;
     }
 
@@ -85,6 +183,8 @@ protected:
     }
 
     virtual bool hasSafeWinner(const U& resultUtility) {
+        if (resultUtility <= game.util_min || resultUtility >= game.util_max)
+            std::cout << "Safe winner found: " << resultUtility << std::endl;
         return resultUtility <= game.util_min || resultUtility >= game.util_max;
     }
 
@@ -93,29 +193,26 @@ protected:
         return game.getUtility(state, player);
     }
 
-    virtual U evalTerminal(const S& state, const P& player, const int& depth) {
-        return game.getUtility(state, player);
+    virtual U evalTerminal(U value, const P& player, const int& depth) {
+        hEvalUsed = true;
+        return value;
     }
 
     virtual vector<A> orderActions(const S& state, const vector<A>& actions, const P& player, const int& depth) {
         return actions;
     }
 
-    void updateMetrics(int depth) {
-        metrics.updateMaxDepth(depth);
-        metrics.incrementNodesExpanded();
-    }
-
 
 public:
 
     // Constructor
-    parIteDABSearch(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
-    : game(game), currentDepthLimit(startDepth), timer(maxTimeSeconds)
+    parIteDABSearch_tt(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
+    : game(game), currentDepthLimit(startDepth), timer(maxTimeSeconds),  table(game.util_unknown)
     {}
     
     pair<A, U> makeDecision(S state) {
-        metrics.reset();    
+        metrics.reset();
+        table.clear();    
         this->timer.start();
         auto player = game.getPlayer(state);
     
@@ -176,4 +273,4 @@ public:
     }
 };
 
-#endif // PARITEDEEPABSEARCH_H
+#endif // PARITEDEEPABSEARCHTT_H

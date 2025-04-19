@@ -98,7 +98,11 @@ int main(int argc, char* argv[]) {
     }
     cout << "Name sent to server." << endl;
 
-    Game game = Game(State(), Action::getActions, Result::applyAction, Heuristics::getHeuristics);
+    Game game = Game(State(), 
+                     Action::getActions,
+                     Result::applyAction,
+                     Heuristics::getHeuristics,
+                     Heuristics::min, Heuristics::max, Heuristics::unknown);
 
     State state, result;
     Turn turn;

@@ -5,8 +5,11 @@
 Game::Game(State initialState,
     std::function<std::vector<Move>(State)> actionsFunction,
     std::function<State(State, Move)> resultFunction,
-    std::function<int(State, Turn)> utilityFunction)
+    std::function<int(State, Turn)> utilityFunction,
+    int util_min, int util_max, int util_unknown) :
+    VGame<State, Move, Turn, int>(util_min, util_max, util_unknown)
 {
+    
     this->initialState = initialState;
     this->actionsFunction = actionsFunction;
     this->resultFunction = resultFunction;

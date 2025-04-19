@@ -56,7 +56,8 @@ bool Timer::isTimeOut() {
 }
 
 // ------ SimpleMetrics ------
-SimpleMetrics::SimpleMetrics() : maxDepth(0), nodesExpanded(0) {}
+SimpleMetrics::SimpleMetrics() : maxDepth(0), nodesExpanded(0), tt_hit(0), tt_miss(0) {}
+
 void SimpleMetrics::incrementNodesExpanded() {
     std::lock_guard<std::mutex> lock(mtx);
     nodesExpanded++;
@@ -65,6 +66,8 @@ void SimpleMetrics::reset() {
     std::lock_guard<std::mutex> lock(mtx);
     maxDepth = 0;
     nodesExpanded = 0;
+    tt_hit = 0;
+    tt_miss = 0;
 }
 void SimpleMetrics::updateMaxDepth(u_int depth) {
     std::lock_guard<std::mutex> lock(mtx);
@@ -77,6 +80,21 @@ u_int SimpleMetrics::getMaxDepth() const {
 u_long SimpleMetrics::getNodesExpanded() const {
     return nodesExpanded;
 }
+void SimpleMetrics::incrementTTMiss() {
+    std::lock_guard<std::mutex> lock(mtx);
+    tt_miss++;
+}
+void SimpleMetrics::incrementTTHit() {
+    std::lock_guard<std::mutex> lock(mtx);
+    tt_hit++;
+}
+u_int SimpleMetrics::getTTMiss() const {
+    return tt_miss;
+}
+u_int SimpleMetrics::getTTHit() const {
+    return tt_hit;
+}
 std::string SimpleMetrics::toString() const {
-    return "Max Depth: " + std::to_string(maxDepth) + ", Nodes Expanded: " + std::to_string(nodesExpanded);
+    return "Max Depth: " + std::to_string(maxDepth) + ", Nodes Expanded: " + std::to_string(nodesExpanded) +
+           ", TT Miss: " + std::to_string(tt_miss) + ", TT Hit: " + std::to_string(tt_hit);
 }
