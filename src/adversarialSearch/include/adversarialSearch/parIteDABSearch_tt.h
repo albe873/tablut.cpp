@@ -67,7 +67,6 @@ protected:
         updateMiss();
         
         value = game.util_min;
-        auto originalAlpha = alpha; // save original alpha value
 
         auto actions = orderActions(state, game.getActions(state), player, depth);
         for (auto action : actions) {
@@ -85,9 +84,11 @@ protected:
             alpha = max(alpha, value);
         }
 
-        // transposition table insert, fail high result implies a lower bound
+        // transposition table insert, fail high result implies a lower bound, else exact
         if (value >= beta) 
             table.insert(hash, entry_type::l_bound, value, depth);
+        else
+            table.insert(hash, entry_type::exact, value, depth);
 
         return value;
     }
@@ -126,9 +127,11 @@ protected:
             beta = min(beta, value);
         }
 
-        // transposition table insert, fail low result implies an upper bound
+        // transposition table insert, fail low result implies an upper bound, else exact
         if (value <= alpha) 
             table.insert(hash, entry_type::u_bound, value, depth);
+        else
+            table.insert(hash, entry_type::exact, value, depth);
         
         return value;
     }

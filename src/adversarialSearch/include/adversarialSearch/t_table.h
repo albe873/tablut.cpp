@@ -28,7 +28,7 @@ private:
     std::mutex mtx;
     tt_entry<U, A>* table;
     int size;
-    static const int preferredSize = 10000000;
+    static const int preferredSize = 30000000;
     U unknown;
 
     inline int getIndex(int64_t& hash) {
