@@ -13,49 +13,6 @@
 
 using namespace std;
 
-/*
-pseudo code for the transposition table
-https://people.csail.mit.edu/plaat/mtdf.html#abmem
-
-if retrieve(n) == OK then // Transposition table lookup
-
-if n.lowerbound >= beta then return n.lowerbound;
-if n.upperbound <= alpha then return n.upperbound;
-alpha := max(alpha, n.lowerbound);
-beta := min(beta, n.upperbound);
-
-if d == 0 then g := evaluate(n); // leaf node
-else if n == MAXNODE then
-
-g := -INFINITY; a := alpha; // save original alpha value
-c := firstchild(n);
-while (g < beta) and (c != NOCHILD) do
-    g := max(g, AlphaBetaWithMemory(c, a, beta, d - 1));
-    a := max(a, g);
-    c := nextbrother(c);
-
-else // n is a MINNODE
-
-g := +INFINITY; b := beta; // save original beta value 
-c := firstchild(n);
-while (g > alpha) and (c != NOCHILD) do
-    g := min(g, AlphaBetaWithMemory(c, alpha, b, d - 1));
-    b := min(b, g);
-    c := nextbrother(c);
-
-// Traditional transposition table storing of bounds
-// Fail low result implies an upper bound
-if g <= alpha then n.upperbound := g; store n.upperbound;
-// Found an accurate minimax value - will not occur if called with zero window
-if g >  alpha and g < beta then
-
-n.lowerbound := g; n.upperbound := g; store n.lowerbound, n.upperbound;
-
-// Fail high result implies a lower bound
-if g >= beta then n.lowerbound := g; store n.lowerbound;
-return g;
-
-*/
 
 // Metrics are disabled by default
 // they can be enabled by defining ENABLE_METRICS in this file: #define ENABLE_METRICS
@@ -74,7 +31,7 @@ private:
             metrics.incrementTTHit();
         #endif
     }
-    void updateMetrics(int depth) {
+    void inline updateMetrics(int depth) {
         #ifdef ENABLE_METRICS
             metrics.updateMaxDepth(depth);
             metrics.incrementNodesExpanded();
@@ -93,8 +50,7 @@ protected:
         updateMetrics(depth);
 
         if (game.isTerminal(state)) {
-            U value = eval(state, player);
-            //table.insert(state.hash64(), entry_type::exact, value, depth);
+            auto value = eval(state, player);
             return evalTerminal(value, player, depth);
         }
 
@@ -106,28 +62,32 @@ protected:
         auto value = table.probe(hash, alpha, beta, depth);
         if (value != game.util_unknown) {
             updateHit();
-            return evalTerminal(value, player, depth);
+            return value;
         }
         updateMiss();
         
         value = game.util_min;
+        auto originalAlpha = alpha; // save original alpha value
 
         auto actions = orderActions(state, game.getActions(state), player, depth);
         for (auto action : actions) {
       
             auto newState = game.getResult(state, action);
-            value = max(value, minValue(newState, player, alpha, beta, depth + 1));
-            
-            if (value >= beta) {
-                // Insert in transposition table
-                table.insert(hash, entry_type::l_bound, value, depth);
-                // cutoff
-                return value;
-            }
             
             // recursive call
+            value = max(value, minValue(newState, player, alpha, beta, depth + 1));
+            
+            // cutoff
+            if (value >= beta)
+                break;
+            
+            // update alpha
             alpha = max(alpha, value);
         }
+
+        // transposition table insert, fail high result implies a lower bound
+        if (value >= beta) 
+            table.insert(hash, entry_type::l_bound, value, depth);
 
         return value;
     }
@@ -137,8 +97,7 @@ protected:
         updateMetrics(depth);
 
         if (game.isTerminal(state)) {
-            U value = eval(state, player);
-            //table.insert(state.hash64(), entry_type::exact, value, depth);
+            auto value = eval(state, player);
             return evalTerminal(value, player, depth);
         }
     
@@ -150,27 +109,27 @@ protected:
         auto value = table.probe(hash, alpha, beta, depth);
         if (value != game.util_unknown) {
             updateHit();
-            return evalTerminal(value, player, depth);
+            return value;
         }
         updateMiss();
 
         value = game.util_max;
-        // save original beta for the transposition table
-        U original_beta = beta;
         
         auto actions = orderActions(state, game.getActions(state), player, depth);
         for (auto action : actions) {
             auto newState = game.getResult(state, action);
             value = min(value, maxValue(newState, player, alpha, beta, depth + 1));
             
-            if (value <= alpha) {
-                table.insert(hash, entry_type::u_bound, value, depth);
+            if (value <= alpha)
                 break;
-            }
 
             beta = min(beta, value);
         }
 
+        // transposition table insert, fail low result implies an upper bound
+        if (value <= alpha) 
+            table.insert(hash, entry_type::u_bound, value, depth);
+        
         return value;
     }
 
@@ -183,8 +142,6 @@ protected:
     }
 
     virtual bool hasSafeWinner(const U& resultUtility) {
-        if (resultUtility <= game.util_min || resultUtility >= game.util_max)
-            std::cout << "Safe winner found: " << resultUtility << std::endl;
         return resultUtility <= game.util_min || resultUtility >= game.util_max;
     }
 
@@ -211,8 +168,7 @@ public:
     {}
     
     pair<A, U> makeDecision(S state) {
-        metrics.reset();
-        table.clear();    
+        metrics.reset();   
         this->timer.start();
         auto player = game.getPlayer(state);
     
@@ -223,12 +179,14 @@ public:
         
         do {
             incrementDepthLimit();
+            table.clear(); 
             hEvalUsed = false;
     
             vector<actionUtility<A, U>> newResults;
+            newResults.resize(results.size());
             
             int maxI = 0;
-            //omp_set_num_threads(4);
+            
             #pragma omp parallel for schedule(dynamic, 1)
             for (int i = 0; i < results.size(); i++) {
                 auto actUtil = results[i];
@@ -244,11 +202,13 @@ public:
                     actUtil.utility = newUtil;
                 }
                 
-                if ( i <= maxI) {
-                    #pragma omp critical
-                    {newResults.push_back(actUtil);}
+                #pragma omp critical
+                {
+                    newResults[i] = actUtil;
                 }
             }
+
+            newResults.resize(maxI + 1);
 
             // Sort the results
             std::sort(newResults.begin(), newResults.end());
