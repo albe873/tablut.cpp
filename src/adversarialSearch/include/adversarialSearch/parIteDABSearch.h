@@ -18,6 +18,14 @@ using namespace std;
 
 template <typename S, typename A, typename P, typename U>
 class parIteDABSearch {
+private:
+    void inline updateMetrics(int depth) {
+        #ifdef ENABLE_METRICS
+            metrics.updateMaxDepth(depth);
+            metrics.incrementNodesExpanded();
+        #endif
+    }
+
 protected:
     const VGame<S, A, P, U>& game;
     bool hEvalUsed;
@@ -26,12 +34,12 @@ protected:
     SimpleMetrics metrics;
 
     U maxValue(S& state, P& player, U alpha, U beta, int depth) {
-        #ifdef ENABLE_METRICS
-            updateMetrics(depth);
-        #endif
+        updateMetrics(depth);
 
-        if (game.isTerminal(state))
-            return evalTerminal(state, player, depth);
+        if (game.isTerminal(state)) {
+            auto value = eval(state, player);
+            return evalTerminal(value, player, depth);
+        }
 
         if (depth >= currentDepthLimit || timer.isTimeOut())
             return eval(state, player);
@@ -45,7 +53,8 @@ protected:
             value = max(value, minValue(newState, player, alpha, beta, depth + 1));
             
             if (value >= beta)
-                return value;
+                break;
+            
             alpha = max(alpha, value);
         }
         return value;
@@ -57,8 +66,10 @@ protected:
             updateMetrics(depth);
         #endif
 
-        if (game.isTerminal(state))
-            return evalTerminal(state, player, depth);
+        if (game.isTerminal(state)) {
+            auto value = eval(state, player);
+            return evalTerminal(value, player, depth);
+        }
     
         if (depth >= currentDepthLimit || timer.isTimeOut())
             return eval(state, player);
@@ -67,10 +78,13 @@ protected:
         
         auto actions = orderActions(state, game.getActions(state), player, depth);
         for (auto action : actions) {
+
             auto newState = game.getResult(state, action);
             value = min(value, maxValue(newState, player, alpha, beta, depth + 1));
+            
             if (value <= alpha)
-                return value;
+                break;
+            
             beta = min(beta, value);
         }
         return value;
@@ -93,17 +107,12 @@ protected:
         return game.getUtility(state, player);
     }
 
-    virtual U evalTerminal(const S& state, const P& player, const int& depth) {
-        return game.getUtility(state, player);
+    virtual U evalTerminal(U value, const P& player, const int& depth) {
+        return value;
     }
 
     virtual vector<A> orderActions(const S& state, const vector<A>& actions, const P& player, const int& depth) {
         return actions;
-    }
-
-    void updateMetrics(int depth) {
-        metrics.updateMaxDepth(depth);
-        metrics.incrementNodesExpanded();
     }
 
 
@@ -129,9 +138,10 @@ public:
             hEvalUsed = false;
     
             vector<actionUtility<A, U>> newResults;
+            newResults.resize(results.size());
             
             int maxI = 0;
-            //omp_set_num_threads(4);
+            
             #pragma omp parallel for schedule(dynamic, 1)
             for (int i = 0; i < results.size(); i++) {
                 auto actUtil = results[i];
@@ -149,12 +159,17 @@ public:
                 
                 if ( i <= maxI) {
                     #pragma omp critical
-                    {newResults.push_back(actUtil);}
+                    {
+                        newResults[i] = actUtil;
+                    }
                 }
             }
 
+            // remove unprocessed results
+            newResults.resize(maxI + 1);
+
             // Sort the results
-            std::sort(newResults.begin(), newResults.end());
+            sort(newResults.begin(), newResults.end());
     
             if (!newResults.empty()) {
                 results = newResults;
