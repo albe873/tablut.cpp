@@ -30,18 +30,19 @@ protected:
     const VGame<S, A, P, U>& game;
     bool hEvalUsed;
     int currentDepthLimit;
+    int startDepthLimit;
     Timer timer;
     SimpleMetrics metrics;
 
     U maxValue(S& state, P& player, U alpha, U beta, int depth) {
-        updateMetrics(depth);
+        updateMetrics(currentDepthLimit);
 
         if (game.isTerminal(state)) {
             auto value = eval(state, player);
-            return evalTerminal(value, player, depth);
+            return evalTerminal(value, player, currentDepthLimit - depth);
         }
 
-        if (depth >= currentDepthLimit || timer.isTimeOut())
+        if (depth == 0 || timer.isTimeOut())
             return eval(state, player);
         
         auto value = game.util_min;
@@ -50,7 +51,7 @@ protected:
         for (auto action : actions) {
       
             auto newState = game.getResult(state, action);
-            value = max(value, minValue(newState, player, alpha, beta, depth + 1));
+            value = max(value, minValue(newState, player, alpha, beta, depth - 1));
             
             if (value >= beta)
                 break;
@@ -62,16 +63,14 @@ protected:
 
 
     U minValue(S& state, P& player, U alpha, U beta, int depth) {
-        #ifdef ENABLE_METRICS 
-            updateMetrics(depth);
-        #endif
+        updateMetrics(currentDepthLimit);
 
         if (game.isTerminal(state)) {
             auto value = eval(state, player);
-            return evalTerminal(value, player, depth);
+            return evalTerminal(value, player, currentDepthLimit - depth);
         }
     
-        if (depth >= currentDepthLimit || timer.isTimeOut())
+        if (depth == 0 || timer.isTimeOut())
             return eval(state, player);
         
         auto value = game.util_max;
@@ -80,7 +79,7 @@ protected:
         for (auto action : actions) {
 
             auto newState = game.getResult(state, action);
-            value = min(value, maxValue(newState, player, alpha, beta, depth + 1));
+            value = min(value, maxValue(newState, player, alpha, beta, depth - 1));
             
             if (value <= alpha)
                 break;
@@ -107,11 +106,11 @@ protected:
         return game.getUtility(state, player);
     }
 
-    virtual U evalTerminal(U value, const P& player, const int& depth) {
+    virtual U evalTerminal(U value, const P& player, const int& distance) {
         return value;
     }
 
-    virtual vector<A> orderActions(const S& state, const vector<A>& actions, const P& player, const int& depth) {
+    virtual vector<A> orderActions(const S& state, vector<A> actions, const P& player, const int& depth) {
         return actions;
     }
 
@@ -120,12 +119,13 @@ public:
 
     // Constructor
     parIteDABSearch(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
-    : game(game), currentDepthLimit(startDepth), timer(maxTimeSeconds)
+    : game(game), startDepthLimit(startDepth), timer(maxTimeSeconds)
     {}
     
     pair<A, U> makeDecision(S state) {
-        metrics.reset();    
-        this->timer.start();
+        metrics.reset();
+        currentDepthLimit = startDepthLimit;
+        timer.start();
         auto player = game.getPlayer(state);
     
         auto actions = orderActions(state, game.getActions(state), player, 0);
@@ -146,7 +146,7 @@ public:
             for (int i = 0; i < results.size(); i++) {
                 auto actUtil = results[i];
                 auto newState = game.getResult(state, actUtil.action);
-                auto newUtil = minValue(newState, player, game.util_min, game.util_max, 1);
+                auto newUtil = minValue(newState, player, game.util_min, game.util_max, currentDepthLimit);
                 
                 // no break allowed, so we add the first results calculated up to the timeout
                 // some threads might finish earlier than other with a smaller i, so I need to add
