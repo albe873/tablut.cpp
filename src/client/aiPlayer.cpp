@@ -10,9 +10,9 @@ using namespace std;
 
 Move findBestMove(const Game& game, const State& state, int maxTime) {
     cout << "Finding best move..." << endl;
-    auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int>(game, Heuristics::min, Heuristics::max, maxTime);
+    auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int>(game, maxTime, 0);
     //auto search = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 4, maxTime);
-    Move bestMove = search.makeDecision(state);
+    Move bestMove = search.makeDecision(state).first;
     cout << "Metrics: " << search.getMetrics() << endl;
 
     auto bestValue = Heuristics::getHeuristics(state, state.getTurn());
