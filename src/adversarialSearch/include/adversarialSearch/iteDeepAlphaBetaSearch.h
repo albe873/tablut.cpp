@@ -14,25 +14,33 @@ template <class S, class A, class P, class U>
 class IteDeepAlphaBetaSearch {
 private:
     const VGame<S, A, P, U>& game;
-    U utilMax, utilMin;
     bool hEvalUsed;
     int currentDepthLimit;
+    int startDepthLimit;
     Timer timer;
     SimpleMetrics metrics;
 
-    U maxValue(S state, P player, U alpha, U beta, int depth) {
+    void inline updateMetrics(int depth) {
+        #ifdef ENABLE_METRICS
+            metrics.updateMaxDepth(depth);
+            metrics.incrementNodesExpanded();
+        #endif
+    }
+
+protected:
+    virtual U maxValue(S state, P player, U alpha, U beta, int depth) {
         updateMetrics(depth);
     
-        if (game.isTerminal(state) || depth >= currentDepthLimit || timer.isTimeOut())
+        if (game.isTerminal(state) || depth == 0 || timer.isTimeOut())
             return eval(state, player);
         
-        auto value = utilMin;
+        auto value = game.util_min;
     
         auto actions = orderActions(state, game.getActions(state), player, depth);
         for (auto action : actions) {
       
             auto newState = game.getResult(state, action);
-            value = max(value, minValue(newState, player, alpha, beta, depth + 1));
+            value = max(value, minValue(newState, player, alpha, beta, depth - 1));
             
             if (value >= beta)
                 return value;
@@ -42,18 +50,18 @@ private:
     }
 
 
-    U minValue(S state, P player, U alpha, U beta, int depth) {
+    virtual U minValue(S state, P player, U alpha, U beta, int depth) {
         updateMetrics(depth);
     
-        if (game.isTerminal(state) || depth >= currentDepthLimit || timer.isTimeOut())
+        if (game.isTerminal(state) || depth == currentDepthLimit || timer.isTimeOut())
             return eval(state, player);
         
-        auto value = utilMax;
+        auto value = game.util_max;
     
         auto actions = orderActions(state, game.getActions(state), player, depth);
         for (auto action : actions) {
             auto newState = game.getResult(state, action);
-            value = min(value, maxValue(newState, player, alpha, beta, depth + 1));
+            value = min(value, maxValue(newState, player, alpha, beta, depth - 1));
             if (value <= alpha)
                 return value;
             beta = min(beta, value);
@@ -62,50 +70,45 @@ private:
     }
 
 
-protected:
-    void incrementDepthLimit() {
+    virtual void incrementDepthLimit() {
         this->currentDepthLimit++;
     }
 
-    bool isSignificantlyBetter(U newUtility, U utility) {
+    virtual bool isSignificantlyBetter(U newUtility, U utility) {
         return false;
     }
 
-    bool hasSafeWinner(U resultUtility) {
-        return resultUtility <= utilMin || resultUtility >= utilMax;
+    virtual bool hasSafeWinner(U resultUtility) {
+        return resultUtility <= game.util_min || resultUtility >= game.util_max;
     }
 
-    U eval(S state, P player) {
+    virtual U eval(S state, P player) {
         hEvalUsed = true;
         return game.getUtility(state, player);
     }
 
-    vector<A> orderActions(S state, vector<A> actions, P player, int depth) {
+    virtual vector<A> orderActions(S state, vector<A> actions, P player, int depth) {
         return actions;
-    }
-
-    void updateMetrics(int depth) {
-        metrics.updateMaxDepth(depth);
-        metrics.incrementNodesExpanded();
     }
 
 
 public:
 
     // Constructor
-    IteDeepAlphaBetaSearch(const VGame<S, A, P, U>& game, U utilMin, U utilMax, int maxTimeSeconds)
-    : game(game), utilMin(utilMin), utilMax(utilMax), currentDepthLimit(0), timer(maxTimeSeconds)
+    IteDeepAlphaBetaSearch(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
+    : game(game), startDepthLimit(startDepth), timer(maxTimeSeconds)
     {}
     
-    A makeDecision(S state) {
+    virtual pair<A, U> makeDecision(S state) {
         metrics.reset();    
-        this->timer.start();
+        timer.start();
+        currentDepthLimit = startDepthLimit;
         auto player = game.getPlayer(state);
     
         auto actions = orderActions(state, game.getActions(state), player, 0);
         multiset<actionUtility<A, U>> results;
         for (auto action : actions)
-            results.insert({action, utilMin});
+            results.insert({action, game.util_min});
         
         do {
             incrementDepthLimit();
@@ -115,7 +118,7 @@ public:
             
             for (auto actUtil : results) {
                 auto newState = game.getResult(state, actUtil.action);
-                actUtil.utility = minValue(newState, player, utilMin, utilMax, 1);
+                actUtil.utility = minValue(newState, player, game.util_min, game.util_max, currentDepthLimit);
     
                 newResults.insert(actUtil);
                 
@@ -135,7 +138,7 @@ public:
             
         } while (!timer.isTimeOut() && hEvalUsed);
         
-        return results.begin()->action;
+        return {results.begin()->action, results.begin()->utility};
     }
 
     std::string getMetrics() const {
