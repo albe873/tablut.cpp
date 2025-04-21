@@ -6,8 +6,6 @@
 #include <tablut/game.h>
 #include <serverConnection/serverComunicator.h>
 
-#include <adversarialSearch/iteDeepAlphaBetaSearch.h>
-#include <adversarialSearch/parIteDABSearch.h>
 #include "customSearch.cpp"
 
 using namespace std;
