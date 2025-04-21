@@ -19,7 +19,7 @@ struct tt_entry {
     entry_type type;
     int depth;
     U score;
-    //A bestAction;
+    int best_action_index;
 };
 
 template <typename U, typename A>
@@ -28,7 +28,7 @@ private:
     std::mutex mtx;
     tt_entry<U, A>* table;
     int size;
-    static const int preferredSize = 30000000;
+    static const int preferredSize = 50000000;
     U unknown;
 
     inline int getIndex(int64_t& hash) {
@@ -65,6 +65,7 @@ public:
                 table[i].type = entry_type::exact;
                 table[i].depth = 0;
                 table[i].score = unknown;
+                table[i].best_action_index = 0;
             }
         }
     }
@@ -75,8 +76,8 @@ public:
         delete[] table;
     }
 
-    /*
-    void insert(int64_t hash, entry_type type, U score, int depth, A bestAction) {
+
+    void insert(int64_t hash, entry_type type, U score, int depth, int best_action_index) {
         std::lock_guard<std::mutex> lock(mtx);
         int index = getIndex(hash);
         auto& entry = table[index];
@@ -85,13 +86,15 @@ public:
         entry.type = type;
         entry.depth = depth;
         entry.score = score;
-        entry.bestAction = bestAction;
+        entry.best_action_index = best_action_index;
     }
-    */
 
     void insert(int64_t hash, entry_type type, U score, int depth) {
 
-        std::lock_guard<std::mutex> lock(mtx);
+        #ifndef TT_LOCKLESS
+            std::lock_guard<std::mutex> lock(mtx);
+        #endif
+        
         int index = getIndex(hash);
         auto& entry = table[index];
 
@@ -99,15 +102,23 @@ public:
         entry.type = type;
         entry.depth = depth;
         entry.score = score;
+        entry.best_action_index = 0;    // no best action index, clear the value
     }
 
-    U probe(int64_t hash, U alpha, U beta, int depth) {
+    U probe(int64_t hash, U alpha, U beta, int depth, int& best_action_index) {
         
-        std::lock_guard<std::mutex> lock(mtx);
+        #ifndef TT_LOCKLESS
+            std::lock_guard<std::mutex> lock(mtx);
+        #endif
+        
         int index = getIndex(hash);
         auto& entry = table[index];
 
         if (entry.hash == hash) {
+
+            if (entry.best_action_index != 0)
+                best_action_index = entry.best_action_index;
+
             if (entry.depth >= depth) {
                 
                 if (entry.type == entry_type::exact) {
@@ -134,6 +145,7 @@ public:
             table[i].type = entry_type::exact;
             table[i].depth = 0;
             table[i].score = unknown;
+            table[i].best_action_index = 0;
         }
     }
 
