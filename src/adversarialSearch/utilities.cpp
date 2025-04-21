@@ -27,6 +27,11 @@ bool Timer::start() {
     std::lock_guard<std::mutex> lock(mtx);
     if (started)
         return false; // Timer already started
+    
+    // Join the previous thread
+    if (timerTh.joinable()) {
+        timerTh.join();
+    }
 
     timeOut = false;
     started = true;
