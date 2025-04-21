@@ -18,7 +18,8 @@ Move findBestMove(const Game& game, const State& state, int maxTime) {
     cout << "Finding best move..." << endl;
     
     // search
-    auto search = CustomSearch<State, Move, Turn, int>(game, 4, maxTime);
+    static CustomSearch<State, Move, Turn, int> search(game, 4, maxTime);
+    //search.setMaxTime(maxTime);
     auto bestAction = search.makeDecision(state);
     
     // metrics
