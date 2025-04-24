@@ -1,17 +1,17 @@
-// IntDeepAlphaBetaSearch.h
+// ite_minmax.h
 
 #include <set>
 
 #include "vgame.h"
 #include "utilities.h"
 
-#ifndef INTDEEPABSEARCH_H
-#define INTDEEPABSEARCH_H
+#ifndef ITEMINMAX_H
+#define ITEMINMAX_H
 
 using namespace std;
 
 template <class S, class A, class P, class U>
-class IteDeepAlphaBetaSearch {
+class ite_minmax {
 private:
     const VGame<S, A, P, U>& game;
     bool hEvalUsed;
@@ -53,7 +53,7 @@ protected:
     virtual U minValue(S state, P player, U alpha, U beta, int depth) {
         updateMetrics(depth);
     
-        if (game.isTerminal(state) || depth == currentDepthLimit || timer.isTimeOut())
+        if (game.isTerminal(state) || depth == 0 || timer.isTimeOut())
             return eval(state, player);
         
         auto value = game.util_max;
@@ -95,7 +95,7 @@ protected:
 public:
 
     // Constructor
-    IteDeepAlphaBetaSearch(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
+    ite_minmax(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
     : game(game), startDepthLimit(startDepth), timer(maxTimeSeconds)
     {}
     
@@ -105,7 +105,7 @@ public:
         currentDepthLimit = startDepthLimit;
         auto player = game.getPlayer(state);
     
-        auto actions = orderActions(state, game.getActions(state), player, 0);
+        auto actions = orderActions(state, game.getActions(state), player, currentDepthLimit);
         multiset<actionUtility<A, U>> results;
         for (auto action : actions)
             results.insert({action, game.util_min});
@@ -146,4 +146,4 @@ public:
     }
 };
 
-#endif // INTDEEPABSEARCH_H
+#endif // ITEMINMAX_H

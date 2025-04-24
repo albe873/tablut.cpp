@@ -9,9 +9,10 @@ target_link_libraries(aiPlayer  tablut
                                 adversarialSearch
 )
 
-add_executable(aiPlayer2 aiPlayer2.cpp customSearch.cpp)
+add_executable(aiPlayer2 aiPlayer2.cpp)
 target_link_libraries(aiPlayer2 tablut
                                 serverConnection
                                 adversarialSearch
 )
 target_compile_definitions(aiPlayer2 PRIVATE ENABLE_METRICS)
+target_compile_definitions(aiPlayer  PRIVATE ENABLE_METRICS)

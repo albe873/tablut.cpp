@@ -1,5 +1,4 @@
-#include <adversarialSearch/parIteDABSearch_tt.h>
-#include <adversarialSearch/parIteDABSearch.h>
+#include <adversarialSearch/ite_minmax_pq.h>
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -7,11 +6,12 @@
 using namespace std;
 
 template <typename S, typename A, typename P, typename U>
-class CustomSearch : public parIteDABSearch_tt<S, A, P, U> {
+class CustomSearch : public ite_minmax_pq<S, A, P, U> {
 protected:
 
     // Penalize/reward terminal states based on depth
-    U evalTerminal(U value, const P& player, const int& distance) override {
+    U evalTerminal(const S& state, const P& player, const int& distance) override {
+        auto value = this->game.getUtility(state, player);
         if (value == this->game.util_max)
             return value - distance;
         else if (value == this->game.util_min)
@@ -23,14 +23,15 @@ protected:
     }
 
     // Ordering actions based on heuristic values
-    vector<A> orderActions(const S& state, vector<A> actions, const P& player, const int& depth, const int& ba_i) override {
-        if (actions.size() <= 1 || depth < 2) {   // no brother ordering if depth is low
+    //vector<A> orderActions(const S& state, vector<A> actions, const P& player, const int& depth, const int& ba_i) override {
+    vector<A> orderActions(const S& state, vector<A> actions, const P& player, const int& depth) override {
+        if (actions.size() <= 1) {   // no brother ordering if depth is low
             // if valid, put the best action at the beginning
-            if (ba_i > 0 && ba_i < actions.size()) {
-                auto bestAction = actions[ba_i];
-                actions[ba_i] = actions[0];
-                actions[0] = bestAction;
-            }
+            //if (ba_i > 0 && ba_i < actions.size()) {
+            //    auto bestAction = actions[ba_i];
+            //    actions[ba_i] = actions[0];
+            //    actions[0] = bestAction;
+            //}
             return actions;
         }
 
@@ -66,16 +67,16 @@ protected:
         }
 
         // if valid, put the best action at the beginning
-        if (ba_i > 0 && ba_i < actions.size()) {
-            auto bestAction = actions[ba_i];
-            actions[ba_i] = actions[0];
-            actions[0] = bestAction;
-        }
+        //if (ba_i > 0 && ba_i < actions.size()) {
+        //    auto bestAction = actions[ba_i];
+        //    actions[ba_i] = actions[0];
+        //    actions[0] = bestAction;
+        //}
 
         return sortedActions;
     }
 
 public:
     CustomSearch(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
-        : parIteDABSearch_tt<S, A, P, U>(game, startDepth, maxTimeSeconds) {}
+        : ite_minmax_pq<S, A, P, U>(game, startDepth, maxTimeSeconds) {}
 };

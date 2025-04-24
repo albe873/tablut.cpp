@@ -3,15 +3,13 @@
 
 #include <tablut/game.h>
 #include <serverConnection/serverComunicator.h>
-#include <adversarialSearch/iteDeepAlphaBetaSearch.h>
-#include <adversarialSearch/parIteDABSearch.h>
+#include <tablut/customSearch2.h>
 
 using namespace std;
 
 Move findBestMove(const Game& game, const State& state, int maxTime) {
     cout << "Finding best move..." << endl;
-    auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int>(game, maxTime, 0);
-    //auto search = parIteDABSearch<State, Move, Turn, int8_t>(game, Heuristics::min, Heuristics::max, 4, maxTime);
+    static CustomSearch2<State, Move, Turn, int> search(game, 3, maxTime);
     Move bestMove = search.makeDecision(state).first;
     cout << "Metrics: " << search.getMetrics() << endl;
 
@@ -28,6 +26,8 @@ void checkState(const State& serverState, const State& localState) {
              << ", Local: " << to_string(actualHash) << endl;
         cerr << "Server state: " << endl << serverState.boardString() << endl;
         cerr << "Local state: " << endl << localState.boardString() << endl;
+        cerr << "Server turn: " << to_string((int)serverState.getTurn()) << endl;
+        cerr << "Local turn: " << to_string((int)localState.getTurn()) << endl;
         exit(1);
     }
 }

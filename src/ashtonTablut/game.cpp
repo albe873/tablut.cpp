@@ -43,3 +43,87 @@ bool Game::isTerminal(const State& state) const {
 int Game::getUtility(const State& state, const Turn& player) const {
     return utilityFunction(state, player);
 }
+
+bool Game::isQuiet(const State& state, const State& newState) const {
+    if (state.getBlackPieces() != newState.getBlackPieces() || 
+        state.getWhitePieces() != newState.getWhitePieces())
+        return false;
+
+    if (newState.getTurn() == Turn::White && kingEscapeRoutes(newState) != 0)
+        return false;
+
+    return true;
+}
+
+
+
+inline int Game::kingEscapeRoutes(const State& state) const {
+    int escapes = 0;
+    cord kingPos = state.getKingPosition();
+    if (kingPos.x >= 3 && kingPos.x <= 5 && kingPos.y >= 3 && kingPos.y <= 5) {
+        return 0; // King is near the throne
+    }
+
+    int x = kingPos.x;
+    int y = kingPos.y;
+
+    // Check all 4 directions
+    // not using the cord directions for speed (if it even matters)
+    // Up
+    int newY = y - 1;
+    int newX = x;
+    cord dest;
+    while (newY >= 0) {
+        dest = cord(newX, newY);
+        if (!state.isEmpty(dest))
+            break;
+        newY--;
+    }
+    if (newY == -1)
+        escapes++;
+
+    // Down
+    newY = y + 1;
+    while (newY < state.size) {
+        dest = cord(newX, newY);
+        if (!state.isEmpty(dest))
+            break;
+        newY++;
+    }
+    if (newY == state.size) {
+        escapes++;
+        if (escapes == 2)
+            return escapes;
+    }
+
+    // Left
+    newX = x - 1;
+    newY = y;
+    while (newX >= 0) {
+        dest = cord(newX, newY);
+        if (!state.isEmpty(dest))
+            break;
+        newX--;
+    }
+    if (newX == -1) {
+        escapes++;
+        if (escapes == 2)
+            return escapes;
+    }
+
+    // Right
+    newX = x + 1;
+    while (newX < state.size) {
+        dest = cord(newX, newY);
+        if (!state.isEmpty(dest))
+            break;
+        newX++;
+    }
+    if (newX == state.size) {
+        escapes++;
+        if (escapes == 2)
+            return escapes;
+    }
+
+    return escapes;
+}

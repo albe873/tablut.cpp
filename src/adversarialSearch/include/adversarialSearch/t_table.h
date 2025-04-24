@@ -15,7 +15,7 @@ enum class entry_type {
 
 template <typename U, typename A>
 struct tt_entry {
-    int64_t hash;
+    long hash;
     entry_type type;
     int depth;
     U score;
@@ -28,11 +28,11 @@ private:
     std::mutex mtx;
     tt_entry<U, A>* table;
     int size;
-    static const int preferredSize = 50000000;
+    static const int preferredSize = 100000000;
     U unknown;
 
-    inline int getIndex(int64_t& hash) {
-        return (u_int64_t) hash % size;
+    inline int getIndex(long& hash) {
+        return (u_long) hash % size;
     }
 
 public:
@@ -78,7 +78,11 @@ public:
 
 
     void insert(int64_t hash, entry_type type, U score, int depth, int best_action_index) {
-        std::lock_guard<std::mutex> lock(mtx);
+
+        #ifndef TT_LOCKLESS
+            std::lock_guard<std::mutex> lock(mtx);
+        #endif
+        
         int index = getIndex(hash);
         auto& entry = table[index];
 

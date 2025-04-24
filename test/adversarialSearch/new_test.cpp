@@ -6,8 +6,7 @@
 #include <chrono>
 
 #include <tablut/game.h>
-#include <adversarialSearch/iteDeepAlphaBetaSearch.h>
-#include <adversarialSearch/parIteDABSearch.h>
+#include <tablut/customSearch.h>
 
 using namespace std;
 /*
@@ -148,7 +147,24 @@ B - - - W - - - +
 - - - B B B - - - 
 
 
+State read: 
+- - - B B B - - - 
+- - - - B - - - - 
+- - - - W - W B B 
+B - - - W - - - + 
+B B W W + - - + + 
+B - - - W - - - + 
+- - - - W - - K B 
+- - - - + - - B - 
+- - - B B B - - - 
 
+Finding best move...
+Metrics: Max Depth: 4, Nodes Expanded: 1277911, TT Miss: 1210468, TT Hit: 62030
+Best move found, value: -215 playing for: 1000
+Time taken to find best move: 15233 ms
+Selected move from: [6,2] to: [6,7]
+Sending move: {"from":"g3","to":"g8","turn":"WHITE"}
+Not your turn.
 
 
 */
@@ -156,18 +172,18 @@ B - - - W - - - +
 
 int main (int argc, char **argv) {
     Piece pieces[9][9] = {
-        {Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty},
-        {Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty},
-        {Piece::Empty, Piece::Empty, Piece::Empty, Piece::White, Piece::Empty, Piece::Black, Piece::Black, Piece::Empty, Piece::Empty},
-        {Piece::Empty, Piece::Empty, Piece::Empty, Piece::White, Piece::Empty, Piece::White, Piece::Empty, Piece::Empty, Piece::Black},
-        {Piece::Black, Piece::Black, Piece::White, Piece::Empty, Piece::Empty, Piece::Empty, Piece::King,  Piece::Empty, Piece::Black},
-        {Piece::Black, Piece::Empty, Piece::Empty, Piece::White, Piece::White, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Black},
-        {Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::White, Piece::White, Piece::Empty, Piece::Empty, Piece::Empty},
-        {Piece::Empty, Piece::Empty, Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty},
+        {Piece::Empty, Piece::Empty, Piece::Empty, Piece::Black, Piece::Black, Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty},
+        {Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty},
+        {Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::White, Piece::Empty, Piece::White, Piece::Black, Piece::Black},
+        {Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty, Piece::White, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty},
+        {Piece::Black, Piece::Black, Piece::White, Piece::White, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty},
+        {Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty, Piece::White, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Black},
+        {Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::White, Piece::Empty, Piece::Empty, Piece::King, Piece::Black},
+        {Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Black, Piece::Empty},
         {Piece::Empty, Piece::Empty, Piece::Empty, Piece::Black, Piece::Black, Piece::Black, Piece::Empty, Piece::Empty, Piece::Empty}
     };
     
-    auto state = State(pieces, Turn::Black);
+    auto state = State(pieces, Turn::White);
     std::cout << state.boardString() << std::endl;
 
     int maxTime = atoi(argv[1]);
@@ -180,14 +196,14 @@ int main (int argc, char **argv) {
     
     
     // search
-    auto search = parIteDABSearch<State, Move, Turn, int>(game, 3, maxTime);
-    //auto search = IteDeepAlphaBetaSearch<State, Move, Turn, int>(game, Heuristics::min, Heuristics::max, maxTime);
-    Move move = search.makeDecision(state).first;
+    auto search = CustomSearch<State, Move, Turn, int>(game, 3, maxTime);
+    auto result = search.makeDecision(state);
+    Move move = result.first;
     
     // metrics
     cout << "Metrics: " << search.getMetrics() << endl;
     auto bestValue = Heuristics::getHeuristics(state, state.getTurn());
-    cout << "Best move found, value: " << to_string(bestValue) << endl;
+    cout << "Best move found, value: " << to_string(bestValue) << " Playing for "<< result.second << endl;
 
     // Print the selected move
     cout << "Selected move from: [" << to_string(move.getFrom().x) << "," << to_string(move.getFrom().y) 
@@ -202,8 +218,11 @@ int main (int argc, char **argv) {
     std::cout << state.boardString() << std::endl;
     std::cout << std::to_string( (int) state.getTurn()) << std::endl;
 
-    // white
-    auto search2 = parIteDABSearch<State, Move, Turn, int>(game, 3, maxTime);
+
+
+
+    // second move
+    auto search2 = CustomSearch<State, Move, Turn, int>(game, 3, maxTime);
     //auto search2 = IteDeepAlphaBetaSearch<State, Move, Turn, int>(game, Heuristics::min, Heuristics::max, maxTime);
     move = search2.makeDecision(state).first;
     cout << "Metrics: " << search2.getMetrics() << endl;

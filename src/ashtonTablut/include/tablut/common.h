@@ -8,11 +8,11 @@
 #define COMMON_H
 
 struct cord {
-    int8_t x;
-    int8_t y;
+    int x;
+    int y;
 
     cord();
-    cord(int8_t x, int8_t y);
+    cord(int x, int y);
 
     bool operator==(const cord& other) const;
 };

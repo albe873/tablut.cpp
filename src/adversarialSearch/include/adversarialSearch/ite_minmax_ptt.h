@@ -1,4 +1,4 @@
-// IntDeepAlphaBetaSearch.h
+// ite_minmax_ptt.h
 
 #include <set>
 #include <omp.h>
@@ -8,8 +8,10 @@
 #include "utilities.h"
 #include "t_table.h"
 
-#ifndef PARITEDEEPABSEARCHTT_H
-#define PARITEDEEPABSEARCHTT_H
+#include "quiescence.h"
+
+#ifndef ITEMINMAXPTT_H
+#define ITEMINMAXPTT_H
 
 using namespace std;
 
@@ -19,7 +21,7 @@ using namespace std;
 // or (preferred way) by passing -DENABLE_METRICS to the compiler
 
 template <typename S, typename A, typename P, typename U>
-class parIteDABSearch_tt {
+class ite_minmax_ptt {
 private:
     void inline updateMiss() {
         #ifdef ENABLE_METRICS
@@ -46,28 +48,33 @@ protected:
     Timer timer;
     SimpleMetrics metrics;
     t_table<U, A> table;
+    Quiescence<S, A, P, U> quiescence;
 
     U maxValue(S& state, P& player, U alpha, U beta, int depth) {
         updateMetrics(currentDepthLimit);
 
-        if (game.isTerminal(state)) {
-            auto value = eval(state, player);
-            return evalTerminal(value, player, currentDepthLimit - depth);
-        }
-
-        if (depth == 0 || timer.isTimeOut())
-            return eval(state, player);
+        if (game.isTerminal(state))
+            return evalTerminal(state, player, currentDepthLimit - depth);
+        
+        if (timer.isTimeOut())
+            return game.util_min;
         
         // Check transposition table
         int best_action_index = 0;
-        auto hash = state.hash64();
+        auto hash = state.hash();
         auto value = table.probe(hash, alpha, beta, depth, best_action_index);
         if (value != game.util_unknown) {
             updateHit();
+            hEvalUsed = true;
             return value;
         }
         updateMiss();
         
+        if (depth == 0) {
+            //return quiescence.qMin(game, state, player, alpha, beta, 2);
+            return eval(state, player);
+        }
+
         value = game.util_min;
 
         auto actions = orderActions(state, game.getActions(state), player, depth, best_action_index);
@@ -107,23 +114,27 @@ protected:
     U minValue(S& state, P& player, U alpha, U beta, int depth) {
         updateMetrics(currentDepthLimit - depth);
 
-        if (game.isTerminal(state)) {
-            auto value = eval(state, player);
-            return evalTerminal(value, player, currentDepthLimit - depth);
-        }
+        if (game.isTerminal(state))
+            return evalTerminal(state, player, currentDepthLimit - depth);
+
+        if (timer.isTimeOut())
+            return game.util_max;
     
-        if (depth == 0 || timer.isTimeOut())
-            return eval(state, player);
-        
         // Check transposition table
         int best_action_index = 0;
-        auto hash = state.hash64();
+        auto hash = state.hash();
         auto value = table.probe(hash, alpha, beta, depth, best_action_index);
         if (value != game.util_unknown) {
             updateHit();
+            hEvalUsed = true;
             return value;
         }
         updateMiss();
+
+        if (depth == 0) {
+            //return quiescence.qMax(game, state, player, alpha, beta, 2);
+            return eval(state, player);
+        }
 
         value = game.util_max;
         
@@ -174,9 +185,8 @@ protected:
         return game.getUtility(state, player);
     }
 
-    virtual U evalTerminal(U value, const P& player, const int& distance) {
-        hEvalUsed = true;
-        return value;
+    virtual U evalTerminal(const S& state, const P& player, const int& distance) {
+        return game.getUtility(state, player);
     }
 
     virtual vector<A> orderActions(const S& state, vector<A> actions, 
@@ -188,16 +198,20 @@ protected:
 public:
 
     // Constructor
-    parIteDABSearch_tt(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
-    : game(game), startDepthLimit(startDepth), timer(maxTimeSeconds),  table(game.util_unknown)
+    ite_minmax_ptt(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
+    : game(game), startDepthLimit(startDepth), timer(maxTimeSeconds),  table(game.util_unknown),
+      quiescence(game, startDepth, 
+                 [this](const S& s, const P& p){ return this->eval(s, p); }, 
+                 [this](const S& s, const P& p, const int& d){ return this->evalTerminal(s, p, d); })
     {}
     
     pair<A, U> makeDecision(S state) {
         // reset the metrics
         metrics.reset();
+        table.clear();
 
         // start the timer
-        this->timer.start();
+        timer.start();
 
         // reset depth limit
         currentDepthLimit = startDepthLimit;
@@ -206,7 +220,7 @@ public:
         auto player = game.getPlayer(state);
     
         // get actions and put them in results array 
-        auto actions = orderActions(state, game.getActions(state), player, 0, 0);
+        auto actions = orderActions(state, game.getActions(state), player, currentDepthLimit, 0);
         vector<actionUtility<A, U>> results;
         for (auto action : actions)
             results.push_back({action, game.util_min});
@@ -214,6 +228,7 @@ public:
         // iterative deepening main loop
         do {
             incrementDepthLimit();
+            quiescence.setSearchDepth(currentDepthLimit);
             hEvalUsed = false;
     
             vector<actionUtility<A, U>> newResults;
@@ -270,4 +285,4 @@ public:
     }
 };
 
-#endif // PARITEDEEPABSEARCHTT_H
+#endif // ITEMINMAXPTT_H

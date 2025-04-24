@@ -11,20 +11,20 @@ const int Heuristics::blackDraw = -100;
 
 
 // weight constants for white
-const int w_bp = 45;        // penalty, suggesting w_bp - w_wp > w_k_esc to prevent trades
+const int w_bp = 40;        // penalty, suggesting w_bp - w_wp > w_k_esc to prevent trades
 const int w_wp = 70;        // prize
 const int w_best_pos = 4;   // prize, suggesting w_bp - w_wp > w_best_pos * 4 to prevent trades
-const int w_k_esc  = 10;    // prize
-const int w_k_surr = 15;    // penalty
+const int w_k_esc  = 20;    // prize
+const int w_k_surr = 20;    // penalty
 const int w_k_surr_nt = 5;  // penalty
 
 // wheight constants for black
 const int b_bp = 40;        // prize
 const int b_wp = 50;        // penalty 
 const int b_best_pos = 2;   // prize
-const int b_k_esc  = 10;    // penalty
+const int b_k_esc  = 9;    // penalty
 const int b_k_surr = 20;    // prize
-const int b_k_surr_nt = 5;  // prize
+const int b_k_surr_nt = 10;  // prize
 
 
 int Heuristics::getHeuristics(const State& state, const Turn& player) {

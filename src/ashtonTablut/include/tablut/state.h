@@ -12,7 +12,7 @@
 
 #include "common.h"
 
-enum class Piece : int8_t {
+enum class Piece {
     Empty = 0,
     Black = 1,
     White = 2,
@@ -21,7 +21,7 @@ enum class Piece : int8_t {
 
 inline std::string toString(Piece piece);
 
-enum class Turn : int8_t {
+enum class Turn {
     Black = 0,
     White = 1,
     BlackWin = 2,
@@ -34,22 +34,24 @@ inline std::string toString(Turn turn);
 
 class State {
 private:
-    int8_t whiteP;
-    int8_t blackP;
+    int whiteP;
+    int blackP;
     cord kingPos;
 
     // Zobrist hashing
-    long hash_64_value;
-    static long zobrish_table[9][9][4];
+    long hash_value;
+    static long zobrist_table[9][9][4];
+    static long zobrist_turn[5];
     void initZobrist();
     void calculateZobrist();
-    void updateZobrist(const cord& c, const Piece& piece);
+    void updateZobristPiece(const cord& c, const Piece& piece);
+    void updateZobristTurn(const Turn& oldTurn, const Turn& newTurn);
 
 public:
-    static const int8_t size = 9;
+    static const int size = 9;
     Piece board[size][size];
     Turn turn;
-    std::vector<int16_t> hashHistory;
+    std::vector<int> hashHistory;
 
     // Static constants
     static const std::vector<cord> whitePieces;
@@ -63,7 +65,7 @@ public:
     // Constructor
     State();
     State(const Piece (&board)[size][size], Turn turn);
-    State(const Piece (&board)[size][size], Turn turn, std::vector<int16_t> hashHistory);
+    State(const Piece (&board)[size][size], Turn turn, std::vector<int> hashHistory);
 
     // Getters
     const Piece (&getBoard() const)[size][size];
@@ -80,24 +82,23 @@ public:
     bool isEmpty(const cord& c) const;
 
     // Heuristics Utilities
-    int8_t getWhitePieces() const;
-    int8_t getBlackPieces() const;
+    int getWhitePieces() const;
+    int getBlackPieces() const;
     cord getKingPosition() const;
     
     // State History
     bool isHistoryRepeated();
     void clearHistory();
-    void setHistory(std::vector<int16_t> history);
-    std::vector<int16_t> getHistory() const;
+    void setHistory(std::vector<int> history);
+    std::vector<int> getHistory() const;
     void recalculateZobrist();
     
     // Print Utilities
     std::string boardString() const;
 
     bool equals(const State& other) const;
-    int16_t softHash() const;
-    int hash() const;
-    long hash64() const;
+    int softHash() const;
+    long hash() const;
 };
 
 #endif // STATE_H

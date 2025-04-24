@@ -17,8 +17,8 @@ inline bool Action::checksIfValid(const cord& start, const cord& dest, Piece pie
             if (!State::isCamp(start))
                 return false;
             // cannot cross the table to another camp
-            int8_t deltaX = dest.x - start.x;
-            int8_t deltaY = dest.y - start.y;
+            int deltaX = dest.x - start.x;
+            int deltaY = dest.y - start.y;
             if (deltaX > 2 || deltaX < -2 || deltaY > 2 || deltaY < -2)
                 return false;
         
@@ -49,8 +49,8 @@ std::vector<Move> Action::getActions(const State& s) {
     cord start, dest;
 
     // Main loop to check all pieces on the board
-    for (int8_t y = 0; y < s.size; y++) {
-        for (int8_t x = 0; x < s.size; x++) {
+    for (int y = 0; y < s.size; y++) {
+        for (int x = 0; x < s.size; x++) {
 
             start = cord(x, y);
             
@@ -129,8 +129,8 @@ bool Action::isPossibleToMove(const State& s) {
     cord start, dest;
 
         // Main loop to check all pieces on the board
-    for (int8_t y = 0; y < s.size; y++) {
-        for (int8_t x = 0; x < s.size; x++) {
+    for (int y = 0; y < s.size; y++) {
+        for (int x = 0; x < s.size; x++) {
 
             start = cord(x, y);
             
@@ -141,7 +141,7 @@ bool Action::isPossibleToMove(const State& s) {
 
             // if is not the right piece, skip
             if (s.getPiece(start) == rightPiece || (turn == Turn::White && s.getPiece(start) == Piece::King)) {
-                int8_t newX, newY;
+                int newX, newY;
 
                 // Check all 4 directions
                 for (cord dir : Directions::ALL_DIRECTIONS) {

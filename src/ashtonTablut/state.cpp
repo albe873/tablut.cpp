@@ -60,8 +60,8 @@ State::State() {
     turn = Turn::White;
 
     // Initialize the board with pieces
-    for (int8_t y = 0; y < size; y++) {
-        for (int8_t x = 0; x < size; x++) {
+    for (int y = 0; y < size; y++) {
+        for (int x = 0; x < size; x++) {
             if (campsMask[y][x]) {
                 board[y][x] = Piece::Black;
             }
@@ -87,19 +87,19 @@ State::State() {
     initZobrist();
     calculateZobrist();
 
-    hashHistory = std::vector<int16_t>();
+    hashHistory = std::vector<int>();
     hashHistory.push_back(softHash());
 }
 
-State::State(const Piece (&board)[size][size], Turn turn, std::vector<int16_t> hashHistory) {
+State::State(const Piece (&board)[size][size], Turn turn, std::vector<int> hashHistory) {
     this->turn = turn;
     std::memcpy(this->board, board, sizeof(this->board));
     this->hashHistory = hashHistory;
     // Set the number of pieces
     whiteP = 0;
     blackP = 0;
-    for (int8_t y = 0; y < size; y++) {
-        for (int8_t x = 0; x < size; x++) {
+    for (int y = 0; y < size; y++) {
+        for (int x = 0; x < size; x++) {
             if (board[y][x] == Piece::White)
                 whiteP++;
             else if (board[y][x] == Piece::Black)
@@ -115,13 +115,14 @@ State::State(const Piece (&board)[size][size], Turn turn, std::vector<int16_t> h
 }
 
 State::State(const Piece (&board)[size][size], Turn turn) 
-    : State(board, turn, std::vector<int16_t>()) {}
+    : State(board, turn, std::vector<int>()) {}
 
 
 
 // ------ Zobrist hashing ------
 
-long State::zobrish_table[State::size][State::size][4];
+long State::zobrist_table[State::size][State::size][4];
+long State::zobrist_turn[5];
 
 inline void State::initZobrist() {
     static bool initialized = false;    // remain between calls
@@ -130,28 +131,41 @@ inline void State::initZobrist() {
     initialized = true;
 
 
+    // Use two 64-bit random numbers to form a 128-bit value
     std::mt19937_64 rng(0xAAAAAAAAAAAAAAAAULL);
+
+    // board
     for (int y = 0; y < size; y++)
         for (int x = 0; x < size; x++)
             for (int p = 0; p < 4; p++)
-                zobrish_table[y][x][p] = rng();
+                zobrist_table[y][x][p] = rng();
+    // turn
+    for (int i = 0; i < 5; i++)
+        zobrist_turn[i] = rng();
 
 }
 
 inline void State::calculateZobrist() {
-    hash_64_value = 0;
+    hash_value = 0;
+    // board
     for (int y = 0; y < size; y++)
         for (int x = 0; x < size; x++)
             if (board[y][x] != Piece::Empty)
-                hash_64_value ^= zobrish_table[y][x][static_cast<int>(board[y][x])];
+                hash_value ^= zobrist_table[y][x][static_cast<int>(board[y][x])];
+    // turn
+    hash_value ^= zobrist_turn[static_cast<int>(turn)];
 }
 
-inline void State::updateZobrist(const cord& c, const Piece& piece) {
-    hash_64_value ^= zobrish_table[c.y][c.x][static_cast<int>(piece)];
+inline void State::updateZobristPiece(const cord& c, const Piece& piece) {
+    hash_value ^= zobrist_table[c.y][c.x][static_cast<int>(piece)];
+}
+inline void State::updateZobristTurn(const Turn& oldTurn, const Turn& newTurn) {
+    hash_value ^= zobrist_turn[static_cast<int>(oldTurn)];
+    hash_value ^= zobrist_turn[static_cast<int>(newTurn)];
 }
 
-long State::hash64() const {
-    return hash_64_value;
+long State::hash() const {
+    return hash_value;
 }
 
 
@@ -165,6 +179,7 @@ Turn State::getTurn() const {
 }
 
 void State::setTurn(Turn newTurn) {
+    updateZobristTurn(turn, newTurn);
     turn = newTurn;
 }
 
@@ -178,7 +193,7 @@ void State::removePiece(const cord& c) {
     
     // remove the piece
     board[c.y][c.x] = Piece::Empty;
-    updateZobrist(c, toRemove);
+    updateZobristPiece(c, toRemove);
 
     // clear history, the same state cannot be repeated
     clearHistory();
@@ -193,8 +208,8 @@ void State::movePiece(const cord& from, const cord& to) {
     board[from.y][from.x] = Piece::Empty;
     
     // update zobrish hash
-    updateZobrist(from, toMove);
-    updateZobrist(to, toMove);
+    updateZobristPiece(from, toMove);
+    updateZobristPiece(to, toMove);
 
     // update history
     hashHistory.push_back(softHash());
@@ -230,10 +245,10 @@ bool State::isHistoryRepeated() {
 void State::clearHistory() {
     hashHistory.clear();
 }
-void State::setHistory(std::vector<int16_t> history) {
+void State::setHistory(std::vector<int> history) {
     hashHistory = history;
 }
-std::vector<int16_t> State::getHistory() const {
+std::vector<int> State::getHistory() const {
     return hashHistory;
 }
 
@@ -246,18 +261,18 @@ void State::recalculateZobrist() {
 // ------ Utilities ------
 
 // Utilities for Heuristics
-int8_t State::getWhitePieces() const {
+int State::getWhitePieces() const {
     return whiteP;
 }
-int8_t State::getBlackPieces() const {
+int State::getBlackPieces() const {
     return blackP;
 }
 
 // Utility to print the board
 std::string State::boardString() const {
     std::string result;
-    for (int8_t y = 0; y < size; y++) {
-        for (int8_t x = 0; x < size; x++) {
+    for (int y = 0; y < size; y++) {
+        for (int x = 0; x < size; x++) {
             if (isEmpty({x, y}) && (isCamp({x, y}) || isThrone({x, y}))) {
                 result += "+ ";
             }
@@ -288,7 +303,7 @@ bool State::equals(const State& other) const {
     if (this->hashHistory.size() != other.hashHistory.size()) {
         return false;
     }
-    for (size_t i = 0; i < this->hashHistory.size(); i++) {
+    for (int i = 0; i < this->hashHistory.size(); i++) {
         if (this->hashHistory[i] != other.hashHistory[i]) {
             return false;
         }
@@ -297,13 +312,7 @@ bool State::equals(const State& other) const {
     return true;
 }
 
-// Hash only the board, to use for History and Transposition Table
-int16_t State::softHash() const {
-    return (int16_t)(hash_64_value);
-}
-
-int State::hash() const {
-    int hash = softHash();
-    hash ^= static_cast<int>(turn) * 1024;
-    return hash;
+// Hash only the board, to use for History
+int State::softHash() const {
+    return (int)(hash_value);
 }

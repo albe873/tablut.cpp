@@ -155,7 +155,7 @@ TEST(SimpleJsonTest, setHistory) {
     state3.removePiece({1, 3}); // history empty
     state3.movePiece({1, 3}, {2, 3});   // history = 1
     state3.movePiece({2, 3}, {3, 3});
-    state3.setHistory(std::vector<int16_t>()); // history empty
+    state3.setHistory(std::vector<int>()); // history empty
     ASSERT_EQ(state3.getHistory().size(), 0);
 
     State result = Result::applyAction(state2, Move({1, 3}, {2, 3})); // history = 1

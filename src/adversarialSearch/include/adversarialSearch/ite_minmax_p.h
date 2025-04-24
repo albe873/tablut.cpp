@@ -1,4 +1,4 @@
-// IntDeepAlphaBetaSearch.h
+// ite_minmax_p.h
 
 #include <set>
 #include <omp.h>
@@ -7,8 +7,8 @@
 #include "vgame.h"
 #include "utilities.h"
 
-#ifndef PARITEDEEPABSEARCH_H
-#define PARITEDEEPABSEARCH_H
+#ifndef ITEMINMAXP_H
+#define ITEMINMAXP_H
 
 using namespace std;
 
@@ -17,7 +17,7 @@ using namespace std;
 // or (preferred way) by passing -DENABLE_METRICS to the compiler
 
 template <typename S, typename A, typename P, typename U>
-class parIteDABSearch {
+class ite_minmax_p {
 private:
     void inline updateMetrics(int depth) {
         #ifdef ENABLE_METRICS
@@ -37,10 +37,8 @@ protected:
     U maxValue(S& state, P& player, U alpha, U beta, int depth) {
         updateMetrics(currentDepthLimit);
 
-        if (game.isTerminal(state)) {
-            auto value = eval(state, player);
-            return evalTerminal(value, player, currentDepthLimit - depth);
-        }
+        if (game.isTerminal(state))
+            return evalTerminal(state, player, currentDepthLimit - depth);
 
         if (depth == 0 || timer.isTimeOut())
             return eval(state, player);
@@ -65,10 +63,8 @@ protected:
     U minValue(S& state, P& player, U alpha, U beta, int depth) {
         updateMetrics(currentDepthLimit);
 
-        if (game.isTerminal(state)) {
-            auto value = eval(state, player);
-            return evalTerminal(value, player, currentDepthLimit - depth);
-        }
+        if (game.isTerminal(state))
+            return evalTerminal(state, player, currentDepthLimit - depth);
     
         if (depth == 0 || timer.isTimeOut())
             return eval(state, player);
@@ -106,8 +102,8 @@ protected:
         return game.getUtility(state, player);
     }
 
-    virtual U evalTerminal(U value, const P& player, const int& distance) {
-        return value;
+    virtual U evalTerminal(const S& state, const P& player, const int& distance) {
+        return game.getUtility(state, player);
     }
 
     virtual vector<A> orderActions(const S& state, vector<A> actions, const P& player, const int& depth) {
@@ -118,7 +114,7 @@ protected:
 public:
 
     // Constructor
-    parIteDABSearch(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
+    ite_minmax_p(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
     : game(game), startDepthLimit(startDepth), timer(maxTimeSeconds)
     {}
     
@@ -191,4 +187,4 @@ public:
     }
 };
 
-#endif // PARITEDEEPABSEARCH_H
+#endif // ITEMINMAXP_H

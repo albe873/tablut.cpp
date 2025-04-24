@@ -16,6 +16,8 @@ private:
     std::function<State(State, Move)> resultFunction;
     std::function<int(State, Turn)> utilityFunction;
 
+    int kingEscapeRoutes(const State& state) const;
+
 public:
     // Constructor
     Game(State initialState,
@@ -38,6 +40,8 @@ public:
     bool isTerminal(const State&) const override;
 
     int getUtility(const State&, const Turn&) const override;
+
+    bool isQuiet(const State&, const State&) const override;
 };
 
 #endif // GAME_H

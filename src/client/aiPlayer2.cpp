@@ -6,7 +6,7 @@
 #include <tablut/game.h>
 #include <serverConnection/serverComunicator.h>
 
-#include "customSearch.cpp"
+#include "tablut/customSearch_tt.h"
 
 using namespace std;
 
@@ -16,8 +16,7 @@ Move findBestMove(const Game& game, const State& state, int maxTime) {
     cout << "Finding best move..." << endl;
     
     // search
-    static CustomSearch<State, Move, Turn, int> search(game, 4, maxTime);
-    //search.setMaxTime(maxTime);
+    static CustomSearch_tt<State, Move, Turn, int> search(game, 3, maxTime);
     auto bestAction = search.makeDecision(state);
     
     // metrics
@@ -34,14 +33,16 @@ Move findBestMove(const Game& game, const State& state, int maxTime) {
 }
 
 void checkState(const State& serverState, const State& localState) {
-    auto server_hash = serverState.hash64();
-    auto local_hash = localState.hash64();
+    auto server_hash = serverState.hash();
+    auto local_hash = localState.hash();
     if (server_hash != local_hash) {
         cerr << "Hash mismatch!" << endl;
         cerr << "Server hash: " << to_string(server_hash) << endl;
         cerr << "Local hash: " << to_string(local_hash) << endl;
         cerr << "Server state: " << endl << serverState.boardString() << endl;
         cerr << "Local state: " << endl << localState.boardString() << endl;
+        cerr << "Server turn: " << to_string((int)serverState.getTurn()) << endl;
+        cerr << "Local turn: " << to_string((int)localState.getTurn()) << endl;
         exit(1);
     }
 }

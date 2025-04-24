@@ -4,7 +4,7 @@
 
 // cord
 cord::cord() : x(0), y(0) {}
-cord::cord(int8_t x, int8_t y) : x(x), y(y) {}
+cord::cord(int x, int y) : x(x), y(y) {}
 bool cord::operator==(const cord& other) const {
     return x == other.x && y == other.y;
 }

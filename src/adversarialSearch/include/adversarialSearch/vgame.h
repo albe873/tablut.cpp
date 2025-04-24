@@ -32,6 +32,8 @@ public:
     virtual bool isTerminal(const S&) const = 0;
     
     virtual U getUtility(const S&, const P&) const = 0;
+
+    virtual bool isQuiet(const S&, const S&) const = 0;
 };
 
 #endif
