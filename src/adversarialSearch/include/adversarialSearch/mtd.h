@@ -223,6 +223,7 @@ public:
         // get actions and put them in results array 
         auto actions = orderActions(state, game.getActions(state), player, currentDepthLimit, 0);
         vector<actionUtility<A, U>> results;
+
         for (auto action : actions)
             results.push_back({action, game.util_min});
 
@@ -252,7 +253,7 @@ public:
                 else
                     guess = first_guess;
 
-                actUtil.utility = mtdfSearch(new_state, player, guess, currentDepthLimit - 1);
+                auto value = mtdfSearch(new_state, player, guess, currentDepthLimit - 1);
 
                 // If the search is not timed out, update the maximum index for the results vector
                 if (!timer.isTimeOut()) {
@@ -260,7 +261,12 @@ public:
                     {
                         maxI = max(i, maxI);
                     }
+                    // it's a reference, update only if in time
+                    actUtil.utility = value;
+                    actUtil.completed = true;
                 }
+                else
+                    actUtil.completed = false; // incomplete 
 
                 // Update the new results vector with the action and its utility
                 new_results[i] = actUtil;
@@ -268,8 +274,11 @@ public:
             new_results.resize(maxI + 1);
 
             // Sort the results and update only if the timer is not timed out
-            // to discard the last partial results 
-            if (!timer.isTimeOut()) {
+            // or if the first two results are completed
+            // else use the previous results
+            if (!timer.isTimeOut() ||
+                (new_results.size() > 1 && new_results[0].completed && new_results[1].completed))
+            {
                 std::sort(new_results.begin(), new_results.end());
                 results = new_results;
             }

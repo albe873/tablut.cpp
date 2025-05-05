@@ -55,6 +55,7 @@ template <class A, class U>
 struct actionUtility {
     A action;
     U utility;
+    bool completed = true; // default value
 
     bool operator<(const actionUtility<A, U>& other) const {
         return utility > other.utility;
