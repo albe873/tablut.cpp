@@ -6,7 +6,7 @@
 #include <tablut/game.h>
 #include <serverConnection/serverComunicator.h>
 
-#include "tablut/customSearch_tt.h"
+#include "tablut/custom_mtd.h"
 
 using namespace std;
 
@@ -16,7 +16,7 @@ Move findBestMove(const Game& game, const State& state, int maxTime) {
     cout << "Finding best move..." << endl;
     
     // search
-    static CustomSearch_tt<State, Move, Turn, int> search(game, 3, maxTime);
+    static custom_mtd<State, Move, Turn, int> search(game, 3, maxTime);
     auto bestAction = search.makeDecision(state);
     
     // metrics

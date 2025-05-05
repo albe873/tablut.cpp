@@ -62,11 +62,13 @@ private:
         updateMiss();
 
         if (depth == 0) {
-            // Optional: Quiescence Search
+            // Quiescence search
             // if (maximizingPlayer)
             //     return quiescence.qMax(game, state, player, alpha, beta, 2);
             // else
             //     return quiescence.qMin(game, state, player, alpha, beta, 2);
+            
+            // normal evaluation function
             return eval(state, player);
         }
 
@@ -224,58 +226,61 @@ public:
         for (auto action : actions)
             results.push_back({action, game.util_min});
 
-        U bestUtilityOverall = game.util_min;
-        U firstGuess = eval(state, player); // Initial guess for MTD(f)
-        vector<actionUtility<A, U>> newResults;;
+        U best_util = game.util_min;
+        U first_guess = eval(state, player); // Initial guess for MTD(f)
+        vector<actionUtility<A, U>> new_results;;
 
         // Iterative Deepening Loop
         do {
             incrementDepthLimit();
             quiescence.setSearchDepth(currentDepthLimit);
             hEvalUsed = false;
-            newResults.resize(results.size());
+            new_results.resize(results.size());
 
             int maxI = 0;
             #pragma omp parallel for schedule(dynamic, 1)
             for (int i = 0; i < results.size(); i++) {
 
                 auto& actUtil = results[i];
-                auto newState = game.getResult(state, actUtil.action);
+                auto new_state = game.getResult(state, actUtil.action);
 
                 // Use the utility from the previous depth for this specific action as a guess,
                 // falling back to the overall best guess if it's the first action or unavailable.
-                U actionGuess;
+                U guess;
                 if (currentDepthLimit > startDepthLimit + 1)
-                    actionGuess = actUtil.utility;
+                    guess = actUtil.utility;
                 else
-                    actionGuess = firstGuess;
+                    guess = first_guess;
 
-                U utility = mtdfSearch(newState, player, actionGuess, currentDepthLimit - 1);
+                actUtil.utility = mtdfSearch(new_state, player, guess, currentDepthLimit - 1);
 
+                // If the search is not timed out, update the maximum index for the results vector
                 if (!timer.isTimeOut()) {
                     #pragma omp critical
                     {
                         maxI = max(i, maxI);
                     }
-                    actUtil.utility = utility;
                 }
 
-                newResults[i] = actUtil;
+                // Update the new results vector with the action and its utility
+                new_results[i] = actUtil;
             }
-            newResults.resize(maxI + 1);
+            new_results.resize(maxI + 1);
 
-            // Sort the results
-            std::sort(newResults.begin(), newResults.end());
-            // Update the results with the new values
-            results = newResults;
+            // Sort the results and update only if the timer is not timed out
+            // to discard the last partial results 
+            if (!timer.isTimeOut()) {
+                std::sort(new_results.begin(), new_results.end());
+                results = new_results;
+            }
 
             if (!results.empty()) {
                 // save best utility
-                bestUtilityOverall = results[0].utility;
+                best_util = results[0].utility;
                 // use the best utility for the next guess
-                firstGuess = bestUtilityOverall;
+                first_guess = best_util;
                 
-                if (hasSafeWinner(bestUtilityOverall))
+                if (hasSafeWinner(best_util))
                     break;
                 if (results.size() > 1 && isSignificantlyBetter(results[0].utility, results[1].utility))
                     break;

@@ -7,7 +7,7 @@
 using namespace std;
 
 template <typename S, typename A, typename P, typename U>
-class CustomSearch_tt : public mtd<S, A, P, U> {
+class custom_mtd : public mtd<S, A, P, U> {
 protected:
 
     // Penalize/reward terminal states based on depth
@@ -27,56 +27,49 @@ protected:
     vector<A> orderActions(const S& state, vector<A> actions, const P& player, const int& depth, const int& ba_i) override {
         if (actions.size() <= 1 || depth < 2) {  // no brother ordering if depth is low
             // if valid, put the best action at the beginning
-            if (ba_i > 0 && ba_i < actions.size()) {
-                auto bestAction = actions[ba_i];
-                actions[ba_i] = actions[0];
-                actions[0] = bestAction;
-            }
+            if (ba_i > 0 && ba_i < actions.size())
+                std::swap(actions[0], actions[ba_i]);
             return actions;
         }
 
         // vector with pairs: action and heuristic value
-        vector<pair<A, U>> actionValues;
-        actionValues.reserve(actions.size());
+        vector<pair<A, U>> actions_values;
+        actions_values.reserve(actions.size());
 
         // populate the vector
         for (const auto& action : actions) {
             S newState = this->game.getResult(state, action);
             U heuristicValue = this->game.getUtility(newState, player);
-            actionValues.push_back({action, heuristicValue});
+            actions_values.push_back({action, heuristicValue});
         }
 
         // sort the vector based on heuristic values and player
         // if player == this->game.getPlayer(state), sort in descending order
         // else sort in ascending order
         if (player == this->game.getPlayer(state)) {
-            std::sort(actionValues.begin(), actionValues.end(),
+            std::sort(actions_values.begin(), actions_values.end(),
                       [](const pair<A, U>& a, const pair<A, U>& b) {return a.second > b.second;}
                      );
         } else {
-            std::sort(actionValues.begin(), actionValues.end(),
+            std::sort(actions_values.begin(), actions_values.end(),
                       [](const pair<A, U>& a, const pair<A, U>& b) {return a.second < b.second;}
                      );
         }
 
         // create a new vector with sorted actions
-        vector<A> sortedActions;
-        sortedActions.reserve(actionValues.size());
-        for (const auto& pair : actionValues) {
-            sortedActions.push_back(pair.first);
-        }
+        vector<A> sorted_actions;
+        sorted_actions.reserve(actions_values.size());
+        for (const auto& pair : actions_values)
+            sorted_actions.push_back(pair.first);
 
         // if valid, put the best action at the beginning
-        if (ba_i > 0 && ba_i < actions.size()) {
-            auto bestAction = actions[ba_i];
-            actions[ba_i] = actions[0];
-            actions[0] = bestAction;
-        }
+        if (ba_i > 0 && ba_i < actions.size())
+            std::swap(sorted_actions[0], sorted_actions[ba_i]);
 
-        return sortedActions;
+        return sorted_actions;
     }
 
 public:
-    CustomSearch_tt(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
+    custom_mtd(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
         : mtd<S, A, P, U>(game, startDepth, maxTimeSeconds) {}
 };
