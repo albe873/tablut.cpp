@@ -146,6 +146,15 @@ public:
             {
                 std::sort(new_results.begin(), new_results.end());
                 results = new_results;
+
+                // Remove actions with utility significantly lower than the best utility
+                auto best_util = results[0].utility;
+                int i = 0;
+                for (i = 0; i < results.size(); i++) {
+                    if (results[i].utility < best_util - 50)
+                        break;
+                }
+                results.resize(i);
             }
 
             // Print the results for debugging purposes

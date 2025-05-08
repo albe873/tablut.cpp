@@ -4,12 +4,13 @@
 #include <tablut/game.h>
 #include <serverConnection/serverComunicator.h>
 #include <tablut/customSearch2.h>
+#include <adversarialSearch/mtd.h>
 
 using namespace std;
 
 Move findBestMove(const Game& game, const State& state, int maxTime) {
     cout << "Finding best move..." << endl;
-    static CustomSearch2<State, Move, Turn, int> search(game, 3, maxTime);
+    static mtd<State, Move, Turn, int> search(game, 3, maxTime);
     Move bestMove = search.makeDecision(state).first;
     cout << "Metrics: " << search.getMetrics() << endl;
 
