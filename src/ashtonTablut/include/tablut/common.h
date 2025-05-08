@@ -42,7 +42,7 @@ public:
 
     // --- Utilities ---
     static cord calculateNewCord(const cord& start, const cord& direction);
-    std::string toString();
+    std::string toString() const;
 
     // --- Operators ---
     bool operator==(const Move& other) const;

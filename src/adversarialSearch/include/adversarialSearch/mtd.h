@@ -134,32 +134,6 @@ private:
     }
 
 
-    U mtdfSearch(S& state, P& player, U guess, int depth) {
-        U g = guess;
-        U upperBound = game.util_max;
-        U lowerBound = game.util_min;
-
-        while (lowerBound < upperBound) {
-            if (timer.isTimeOut()) break;
-
-            // Adjust beta for zero-window search. Add 1 if g is the lower bound to avoid infinite loops with discrete utilities.
-            U beta = g;
-            if (g == lowerBound)
-                beta = g + 1;
-
-            // Perform zero-window search (alpha = beta - 1)
-            g = alphaBeta(state, player, beta - 1, beta, depth, false);
-
-            // Update bounds based on the result
-            if (g < beta)
-                upperBound = g;
-            else
-                lowerBound = g;
-        }
-        return g; // The converged value is the minimax value
-    }
-
-
 protected:
     const VGame<S, A, P, U>& game;
     bool hEvalUsed;
@@ -201,6 +175,32 @@ protected:
     }
 
 
+    U mtdfSearch(S& state, P& player, U guess, int depth) {
+        U g = guess;
+        U upperBound = game.util_max;
+        U lowerBound = game.util_min;
+
+        while (lowerBound < upperBound) {
+            if (timer.isTimeOut()) break;
+
+            // Adjust beta for zero-window search. Add 1 if g is the lower bound to avoid infinite loops with discrete utilities.
+            U beta = g;
+            if (g == lowerBound)
+                beta = g + 1;
+
+            // Perform zero-window search (alpha = beta - 1)
+            g = alphaBeta(state, player, beta - 1, beta, depth, false);
+
+            // Update bounds based on the result
+            if (g < beta)
+                upperBound = g;
+            else
+                lowerBound = g;
+        }
+        return g; // The converged value is the minimax value
+    }
+
+
 public:
 
     // Constructor
@@ -211,7 +211,7 @@ public:
                  [this](const S& s, const P& p, const int& d){ return this->evalTerminal(s, p, d); }) // Setup quiescence if used
     {}
 
-    pair<A, U> makeDecision(S state) {
+    virtual pair<A, U> makeDecision(S state) {
         metrics.reset();
         table.clear();
         timer.start();

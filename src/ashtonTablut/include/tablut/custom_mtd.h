@@ -72,4 +72,110 @@ protected:
 public:
     custom_mtd(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
         : mtd<S, A, P, U>(game, startDepth, maxTimeSeconds) {}
+
+
+
+
+    pair<A, U> makeDecision(S state) override {
+        this->metrics.reset();
+        this->table.clear();
+        this->timer.start();
+
+        this->currentDepthLimit = this->startDepthLimit;
+
+        auto player = this->game.getPlayer(state);
+
+        // get actions and put them in results array 
+        auto actions = orderActions(state, this->game.getActions(state), player, this->currentDepthLimit, 0);
+        vector<actionUtility<A, U>> results;
+
+        for (auto action : actions)
+            results.push_back({action, this->game.util_min});
+
+        U best_util = this->game.util_min;
+        U first_guess = this->eval(state, player); // Initial guess for MTD(f)
+        vector<actionUtility<A, U>> new_results;
+
+        // Iterative Deepening Loop
+        do {
+            this->incrementDepthLimit();
+            this->quiescence.setSearchDepth(this->currentDepthLimit);
+            this->hEvalUsed = false;
+            new_results.resize(results.size());
+
+            int maxI = 0;
+            #pragma omp parallel for schedule(dynamic, 1)
+            for (int i = 0; i < results.size(); i++) {
+
+                auto& actUtil = results[i];
+                auto new_state = this->game.getResult(state, actUtil.action);
+
+                // Use the utility from the previous depth for this specific action as a guess,
+                // falling back to the overall best guess if it's the first action or unavailable.
+                U guess;
+                if (this->currentDepthLimit > this->startDepthLimit + 1)
+                    guess = actUtil.utility;
+                else
+                    guess = first_guess;
+
+                auto value = this->mtdfSearch(new_state, player, guess, this->currentDepthLimit - 1);
+
+                // If the search is not timed out, update the maximum index for the results vector
+                if (!this->timer.isTimeOut()) {
+                    #pragma omp critical
+                    {
+                        maxI = max(i, maxI);
+                    }
+                    // it's a reference, update only if in time
+                    actUtil.utility = value;
+                    actUtil.completed = true;
+                }
+                else
+                    actUtil.completed = false; // incomplete 
+
+                // Update the new results vector with the action and its utility
+                new_results[i] = actUtil;
+            }
+            new_results.resize(maxI + 1);
+
+            // Sort the results and update only if the timer is not timed out
+            // or if the first two results are completed
+            // else use the previous results
+            if (!this->timer.isTimeOut() ||
+                (new_results.size() > 1 && new_results[0].completed && new_results[1].completed))
+            {
+                std::sort(new_results.begin(), new_results.end());
+                results = new_results;
+            }
+
+            // Print the results for debugging purposes
+            cout << "Depth: " << this->currentDepthLimit << endl;
+            for (const auto& result : results) {
+                cout << "Action: " << result.action.toString() << ", Utility: " << result.utility << endl;
+            }
+
+            if (!results.empty()) {
+                // save best utility
+                best_util = results[0].utility;
+                // use the best utility for the next guess
+                first_guess = best_util;
+                
+                if (this->hasSafeWinner(best_util))
+                    break;
+                if (results.size() > 1 && this->isSignificantlyBetter(results[0].utility, results[1].utility))
+                    break;
+            }
+
+        } while (!this->timer.isTimeOut() && this->hEvalUsed);
+
+        return {results[0].action, results[0].utility};
+    }
+
+
+
+
+
+
+
+    
 };

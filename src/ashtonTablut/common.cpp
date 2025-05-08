@@ -31,7 +31,7 @@ cord Move::calculateNewCord(const cord& start, const cord& direction) {
     return cord(start.x + direction.x, start.y + direction.y);
 }
 
-std::string Move::toString() {
+std::string Move::toString() const {
     return "Move from (" + std::to_string(from.x) + ", " + std::to_string(from.y) + 
         ") to (" + std::to_string(to.x) + ", " + std::to_string(to.y) + ")";
 }

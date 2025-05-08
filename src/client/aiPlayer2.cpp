@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
     const string name = "Player1";
 
     int maxtime = 60;
-    int safeTime = 2;
+    int safeTime = 3;
     Turn team = Turn::White;
     const char* ip = "localhost";
     bool strictServerCheck = true;
