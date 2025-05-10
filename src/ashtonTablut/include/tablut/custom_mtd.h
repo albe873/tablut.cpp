@@ -23,6 +23,11 @@ protected:
         }
     }
 
+    // Safe whinner to match evalTerminal
+    bool hasSafeWinner(const U& resultUtility, int depth) override {
+        return resultUtility <= this->game.util_min || resultUtility >= (this->game.util_max - depth);
+    }
+
     // Ordering actions based on heuristic values
     vector<A> orderActions(const S& state, vector<A> actions, const P& player, const int& depth, const int& ba_i) override {
         if (actions.size() <= 1 || depth < 2) {  // no brother ordering if depth is low
@@ -169,7 +174,7 @@ public:
                 // use the best utility for the next guess
                 first_guess = best_util;
                 
-                if (this->hasSafeWinner(best_util))
+                if (this->hasSafeWinner(best_util, this->currentDepthLimit))
                     break;
                 if (results.size() > 1 && this->isSignificantlyBetter(results[0].utility, results[1].utility))
                     break;

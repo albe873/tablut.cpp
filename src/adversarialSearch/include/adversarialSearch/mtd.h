@@ -154,7 +154,7 @@ protected:
         return false;
     }
 
-    virtual bool hasSafeWinner(const U& resultUtility) {
+    virtual bool hasSafeWinner(const U& resultUtility, int depth) {
         return resultUtility <= game.util_min || resultUtility >= game.util_max;
     }
 
@@ -289,7 +289,7 @@ public:
                 // use the best utility for the next guess
                 first_guess = best_util;
                 
-                if (hasSafeWinner(best_util))
+                if (hasSafeWinner(best_util, currentDepthLimit))
                     break;
                 if (results.size() > 1 && isSignificantlyBetter(results[0].utility, results[1].utility))
                     break;
