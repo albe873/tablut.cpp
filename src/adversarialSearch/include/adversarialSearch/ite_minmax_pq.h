@@ -117,11 +117,6 @@ protected:
 
 public:
 
-    // Constructor
-    //parIteDABSearch(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
-    //: game(game), startDepthLimit(startDepth), timer(maxTimeSeconds)
-    //{}
-
     ite_minmax_pq(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
     : game(game), startDepthLimit(startDepth), timer(maxTimeSeconds),
       quiescence(game, startDepth, 
@@ -143,9 +138,6 @@ public:
         do {
             incrementDepthLimit();
             hEvalUsed = false;
-    
-            vector<actionUtility<A, U>> newResults;
-            newResults.resize(results.size());
             
             int maxI = 0;
             
@@ -153,39 +145,32 @@ public:
             for (int i = 0; i < results.size(); i++) {
                 auto actUtil = results[i];
                 auto newState = game.getResult(state, actUtil.action);
-                auto newUtil = minValue(newState, player, game.util_min, game.util_max, currentDepthLimit);
+                auto utility = minValue(newState, player, game.util_min, game.util_max, currentDepthLimit);
                 
-                // no break allowed, so we add the first results calculated up to the timeout
-                // some threads might finish earlier than other with a smaller i, so I need to add
-                // up to maxI results in the newResults (some might be with a smaller) with the previous
-                // utility (if timeOut, the new utility is calculated at a smaller depth) 
+
                 if (!timer.isTimeOut()) {
-                    maxI = max(i, maxI);
-                    actUtil.utility = newUtil;
-                }
-                
-                if ( i <= maxI) {
                     #pragma omp critical
                     {
-                        newResults[i] = actUtil;
+                        maxI = max(i, maxI);
                     }
+                    actUtil.completed = true;
+                    actUtil.utility = utility;
                 }
+                else
+                    actUtil.completed = false;
             }
-
             // remove unprocessed results
-            newResults.resize(maxI + 1);
+            results.resize(maxI + 1);
 
             // Sort the results
-            sort(newResults.begin(), newResults.end());
+            if (!timer.isTimeOut() || (results[0].completed && results[1].completed))
+                sort(results.begin(), results.end());
     
-            if (!newResults.empty()) {
-                results = newResults;
-                if (!timer.isTimeOut()) {
-                    if (hasSafeWinner(results[0].utility))
-                        break;
-                    else if (results.size() > 1 && isSignificantlyBetter(results[0].utility, results[0].utility))
-                        break;
-                }
+            if (!timer.isTimeOut()) {
+                if (hasSafeWinner(results[0].utility))
+                    break;
+                else if (results.size() > 1 && isSignificantlyBetter(results[0].utility, results[0].utility))
+                    break;
             }
             
         } while (!timer.isTimeOut() && hEvalUsed);

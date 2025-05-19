@@ -106,34 +106,48 @@ public:
         auto player = game.getPlayer(state);
     
         auto actions = orderActions(state, game.getActions(state), player, currentDepthLimit);
-        multiset<actionUtility<A, U>> results;
+        vector<actionUtility<A, U>> results;
         for (auto action : actions)
-            results.insert({action, game.util_min});
-        
+            results.push_back({action, game.util_min});
+
         do {
             incrementDepthLimit();
             hEvalUsed = false;
-    
-            multiset<actionUtility<A, U>> newResults;
             
             for (auto actUtil : results) {
                 auto newState = game.getResult(state, actUtil.action);
-                actUtil.utility = minValue(newState, player, game.util_min, game.util_max, currentDepthLimit);
-    
-                newResults.insert(actUtil);
+                auto utility = minValue(newState, player, game.util_min, game.util_max, currentDepthLimit);
                 
-                if (timer.isTimeOut())
-                    break;
+                if (!timer.isTimeOut()) {
+                    actUtil.utility = utility;
+                    actUtil.completed = true;
+                }
+                else
+                    actUtil.completed = false; // incomplete 
+            }
+
+            // Sort the results and update only if the timer is not timed out
+            // or if the first two results are completed
+            // else use the previous results
+            if (!timer.isTimeOut() || (new_results[0].completed && new_results[1].completed))
+            {
+                // Remove incomplete results
+                if (timer.isTimeOut()) {
+                    int i;
+                    for (i = 0; i < results.size(); i++) {
+                        if (!results[i].completed)
+                            break;
+                    }
+                    results.resize(i);
+                }
+                std::sort(results.begin(), results.end());
             }
     
-            if (!newResults.empty()) {
-                results = newResults;
-                if (!timer.isTimeOut()) {
-                    if (hasSafeWinner(results.begin()->utility))
-                        break;
-                    else if (results.size() > 1 && isSignificantlyBetter(results.begin()->utility, results.rbegin()->utility))
-                        break;
-                }
+            if (!timer.isTimeOut()) {
+                if (hasSafeWinner(results.begin()->utility))
+                    break;
+                else if (results.size() > 1 && isSignificantlyBetter(results.begin()->utility, results.rbegin()->utility))
+                    break;
             }
             
         } while (!timer.isTimeOut() && hEvalUsed);

@@ -1,5 +1,6 @@
 #include <adversarialSearch/ite_minmax_ptt.h>
 #include <adversarialSearch/ite_minmax_p.h>
+#include <adversarialSearch/bns.h>
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -7,7 +8,7 @@
 using namespace std;
 
 template <typename S, typename A, typename P, typename U>
-class CustomSearch2 : public ite_minmax_p<S, A, P, U> {
+class CustomSearch2 : public bns<S, A, P, U> {
 protected:
 
     // Penalize/reward terminal states based on depth
@@ -64,5 +65,5 @@ protected:
 
 public:
     CustomSearch2(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
-        : ite_minmax_p<S, A, P, U>(game, startDepth, maxTimeSeconds) {}
+        : bns<S, A, P, U>(game, startDepth, maxTimeSeconds) {}
 };

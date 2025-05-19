@@ -14,5 +14,12 @@ target_link_libraries(aiPlayer2 tablut
                                 serverConnection
                                 adversarialSearch
 )
+
+add_executable(Player1 Player1.cpp)
+target_link_libraries(Player1   tablut
+                                serverConnection
+                                adversarialSearch
+)
+
 target_compile_definitions(aiPlayer2 PRIVATE ENABLE_METRICS)
 target_compile_definitions(aiPlayer  PRIVATE ENABLE_METRICS)

@@ -36,35 +36,34 @@ protected:
         }
 
         // vector with pairs: action and heuristic value
-        vector<pair<A, U>> actionValues;
-        actionValues.reserve(actions.size());
+        vector<pair<A, U>> action_values;
+        action_values.reserve(actions.size());
 
         // populate the vector
         for (const auto& action : actions) {
             S newState = this->game.getResult(state, action);
             U heuristicValue = this->game.getUtility(newState, player);
-            actionValues.push_back({action, heuristicValue});
+            action_values.push_back({action, heuristicValue});
         }
 
         // sort the vector based on heuristic values and player
         // if player == this->game.getPlayer(state), sort in descending order
         // else sort in ascending order
         if (player == this->game.getPlayer(state)) {
-            std::sort(actionValues.begin(), actionValues.end(),
+            std::sort(action_values.begin(), action_values.end(),
                       [](const pair<A, U>& a, const pair<A, U>& b) {return a.second > b.second;}
                      );
         } else {
-            std::sort(actionValues.begin(), actionValues.end(),
+            std::sort(action_values.begin(), action_values.end(),
                       [](const pair<A, U>& a, const pair<A, U>& b) {return a.second < b.second;}
                      );
         }
 
         // create a new vector with sorted actions
-        vector<A> sortedActions;
-        sortedActions.reserve(actionValues.size());
-        for (const auto& pair : actionValues) {
-            sortedActions.push_back(pair.first);
-        }
+        vector<A> sorted_actions;
+        sorted_actions.reserve(action_values.size());
+        for (const auto& pair : action_values)
+            sorted_actions.push_back(pair.first);
 
         // if valid, put the best action at the beginning
         //if (ba_i > 0 && ba_i < actions.size()) {
@@ -73,7 +72,7 @@ protected:
         //    actions[0] = bestAction;
         //}
 
-        return sortedActions;
+        return sorted_actions;
     }
 
 public:

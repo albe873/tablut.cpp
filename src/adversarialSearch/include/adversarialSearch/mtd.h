@@ -229,14 +229,12 @@ public:
 
         U best_util = game.util_min;
         U first_guess = eval(state, player); // Initial guess for MTD(f)
-        vector<actionUtility<A, U>> new_results;;
 
         // Iterative Deepening Loop
         do {
             incrementDepthLimit();
-            quiescence.setSearchDepth(currentDepthLimit);
+            //quiescence.setSearchDepth(currentDepthLimit);
             hEvalUsed = false;
-            new_results.resize(results.size());
 
             int maxI = 0;
             #pragma omp parallel for schedule(dynamic, 1)
@@ -267,33 +265,24 @@ public:
                 }
                 else
                     actUtil.completed = false; // incomplete 
-
-                // Update the new results vector with the action and its utility
-                new_results[i] = actUtil;
             }
-            new_results.resize(maxI + 1);
+            results.resize(maxI + 1);
 
             // Sort the results and update only if the timer is not timed out
             // or if the first two results are completed
             // else use the previous results
-            if (!timer.isTimeOut() ||
-                (new_results.size() > 1 && new_results[0].completed && new_results[1].completed))
-            {
-                std::sort(new_results.begin(), new_results.end());
-                results = new_results;
-            }
+            if (!timer.isTimeOut() || (results[0].completed && results[1].completed))
+                std::sort(results.begin(), results.end());
 
-            if (!results.empty()) {
-                // save best utility
-                best_util = results[0].utility;
-                // use the best utility for the next guess
-                first_guess = best_util;
-                
-                if (hasSafeWinner(best_util, currentDepthLimit))
-                    break;
-                if (results.size() > 1 && isSignificantlyBetter(results[0].utility, results[1].utility))
-                    break;
-            }
+            // save best utility
+            best_util = results[0].utility;
+            // use the best utility for the next guess
+            first_guess = best_util;
+            
+            if (hasSafeWinner(best_util, currentDepthLimit))
+                break;
+            if (results.size() > 1 && isSignificantlyBetter(results[0].utility, results[1].utility))
+                break;
 
         } while (!timer.isTimeOut() && hEvalUsed);
 

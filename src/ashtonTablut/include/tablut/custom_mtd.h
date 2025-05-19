@@ -99,14 +99,11 @@ public:
 
         U best_util = this->game.util_min;
         U first_guess = this->eval(state, player); // Initial guess for MTD(f)
-        vector<actionUtility<A, U>> new_results;
 
         // Iterative Deepening Loop
         do {
             this->incrementDepthLimit();
-            this->quiescence.setSearchDepth(this->currentDepthLimit);
             this->hEvalUsed = false;
-            new_results.resize(results.size());
 
             int maxI = 0;
             #pragma omp parallel for schedule(dynamic, 1)
@@ -139,18 +136,16 @@ public:
                     actUtil.completed = false; // incomplete 
 
                 // Update the new results vector with the action and its utility
-                new_results[i] = actUtil;
             }
-            new_results.resize(maxI + 1);
+            results.resize(maxI + 1);
 
             // Sort the results and update only if the timer is not timed out
             // or if the first two results are completed
             // else use the previous results
             if (!this->timer.isTimeOut() ||
-                (new_results.size() > 1 && new_results[0].completed && new_results[1].completed))
+                (results.size() > 1 && results[0].completed && results[1].completed))
             {
-                std::sort(new_results.begin(), new_results.end());
-                results = new_results;
+                std::sort(results.begin(), results.end());
 
                 // Remove actions with utility significantly lower than the best utility
                 auto best_util = results[0].utility;
@@ -163,10 +158,10 @@ public:
             }
 
             // Print the results for debugging purposes
-            cout << "Depth: " << this->currentDepthLimit << endl;
-            for (const auto& result : results) {
-                cout << "Action: " << result.action.toString() << ", Utility: " << result.utility << endl;
-            }
+            //cout << "Depth: " << this->currentDepthLimit << endl;
+            //for (const auto& result : results) {
+            //    cout << "Action: " << result.action.toString() << ", Utility: " << result.utility << endl;
+            //}
 
             if (!results.empty()) {
                 // save best utility
@@ -177,6 +172,8 @@ public:
                 if (this->hasSafeWinner(best_util, this->currentDepthLimit))
                     break;
                 if (results.size() > 1 && this->isSignificantlyBetter(results[0].utility, results[1].utility))
+                    break;
+                if (results.size() == 1)
                     break;
             }
 

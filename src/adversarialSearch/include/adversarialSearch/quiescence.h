@@ -6,6 +6,13 @@
 #include "vgame.h"
 #include <functional>
 
+/*
+**** Not finished ****
+in games there is the concept of check: a state where in the next turn one player can win
+for a proper implementation, is needed to consider checks and checks avoidance moves and evaluate
+the game after that.
+*/
+
 template <typename S, typename A, typename P, typename U>
 class Quiescence {
 private:
