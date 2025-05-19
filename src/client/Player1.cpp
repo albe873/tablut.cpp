@@ -52,7 +52,7 @@ void winMessage() {
     const char* quotes[] = {
         "This is all just a bad dream...\nAnd you're never waking up!\nHAHAHAHAHAHAHAHAHAHAHAHAHAHA",
         "(You feel... something)\n(You're filled with determination.)",
-        "You Really Are An Idiot."
+        "You Really Are An Idiot.",
         "But nobody came"
     };
 
