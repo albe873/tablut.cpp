@@ -237,12 +237,12 @@ int main(int argc, char* argv[]) {
         cout << u8"⠀⠀⢿⣿⠟⠋⠀⠈⠛⣿⣿⠀⠀⠀⠀⠀⠀⠸⣿⡇⢸⣿⡇⠀⠀⠀⠀⠀⠀⠀" << endl;
         cout << u8"⠀⠀⢸⣿⠀⠀⠀⠀⠀⠘⠿⠆⠀⠀⠀⠀⠀⠀⣿⡇⠀⠿⠇⠀⠀⠀⠀⠀⠀⠀" << endl;
         cout << endl << "DRAW!" << endl;
-    } else if ((turn == Turn::White && state.getTurn() == Turn::WhiteWin) ||
-               (turn == Turn::Black && state.getTurn() == Turn::BlackWin)) {
+    } else if ((team == Turn::White && state.getTurn() == Turn::WhiteWin) ||
+               (team == Turn::Black && state.getTurn() == Turn::BlackWin)) {
         winMessage();
     }
-    else if ((turn == Turn::White && state.getTurn() == Turn::BlackWin) ||
-             (turn == Turn::Black && state.getTurn() == Turn::WhiteWin)) {
+    else if ((team == Turn::White && state.getTurn() == Turn::BlackWin) ||
+             (team == Turn::Black && state.getTurn() == Turn::WhiteWin)) {
         cout << "GAME OVER" << endl;
         cout << "You cannot give up just yet..." << endl;
         cout << "Stay determined..." << endl;
