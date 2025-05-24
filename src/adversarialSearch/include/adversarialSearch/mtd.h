@@ -53,7 +53,7 @@ private:
         // Check transposition table
         int best_action_index = 0; // Hint for move ordering
         auto hash = state.hash();
-        entry_type flag = entry_type::exact; // Will be updated by probe
+        entry_type flag = entry_type::exact;
         auto value = table.probe(hash, alpha, beta, depth, best_action_index);
         if (value != game.util_unknown) {
             updateHit();
@@ -125,7 +125,7 @@ private:
             if (value > alpha && value < beta) // Check if it's an exact value within the original window
                 flag = entry_type::exact;
             else if (value >= beta) // Value is >= original beta (Fail High equivalent for Min node)
-                flag = entry_type::l_bound; // Store as lower bound (unlikely)
+                flag = entry_type::l_bound; // Store as lower bound
         }
 
         table.insert(hash, flag, value, depth, current_best_action_index);
