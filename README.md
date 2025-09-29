@@ -1,12 +1,12 @@
-# Tablut challenge 2025
+# Tablut challenge 2025 ⚔️🖳♟️
 
-## Overview
+## ✨ Overview ✨
 
 Project for the tablut challenge, Fondamenti di intelligenza artificiale M, cds Ingegneria Informatica magistrale, University of Bologna; organized by Andrea Galassi, Allegra De Filippo, Luca Giuliani.
 The challenge consist of creating a player that, using AI techniques, plays the game Ashton Tablut, and a short presentation to show each other their own creation.
 To declare the winner, is held a tournament with round-trip matches.
 
-## My solution
+## 💡 My solution 💡
 
 My focus was on using search algorithms in the most efficient way, so I went with:
 - c++ implementation, for speed and usage of objects abstractions to simplify the code
@@ -16,7 +16,7 @@ My focus was on using search algorithms in the most efficient way, so I went wit
 
 ## Usage
 
-### 1.Build
+### 1. 🔧 Build 🔧
 
 clone the repo, create a folder named build and cd in that
 ```
@@ -30,7 +30,7 @@ cmake --build .
 then you can find the binaries in ./src/client
 the main executable is Player1 (aiPlayer* are earlier versions for testing purposes)
 
-### 2.Execute
+### 2. ⚙️ Execute ⚙️
 Run the executable Player1
 
 parameters: Player1 [WHITE|BLACK] [max_server_move_timeout] [server_ip]
