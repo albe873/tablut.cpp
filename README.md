@@ -38,11 +38,11 @@ defaults: WHITE 60 localhost
 
 server project: https://github.com/AGalassi/TablutCompetition
 
-## Tournament Results
+## 🏁 Tournament Results 🏁
 
-- 1st position in overall ranking
-- 1st position for number of captures
-- 1st position for least lost pawns
+- 1st 🏆 position in overall ranking
+- 1st 🥇 position for number of captures
+- 1st 🥇 position for least lost pawns
 
 
 
