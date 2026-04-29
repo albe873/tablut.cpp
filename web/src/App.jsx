@@ -134,7 +134,7 @@ export default function App() {
       }
     };
 
-    worker.postMessage({ type: "init" });
+    worker.postMessage({ type: "init", basePath: import.meta.env.BASE_URL });
   };
 
   useEffect(() => {
