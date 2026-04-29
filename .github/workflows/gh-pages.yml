@@ -11,6 +11,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_PAGES: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
