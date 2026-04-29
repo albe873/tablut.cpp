@@ -7,3 +7,4 @@
 web/package-lock.json
 /web/public
 /web/.vite
+/web/dist

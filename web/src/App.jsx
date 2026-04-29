@@ -72,6 +72,9 @@ export default function App() {
     [humanSide]
   );
 
+  const getWasmScriptUrl = () =>
+    new URL(`wasm/tablut_wasm.js`, `${window.location.origin}${import.meta.env.BASE_URL}`).toString();
+
   const readBoard = (mod, state) => {
     const list = mod.getBoard(state);
     const next = Array(list.size());
@@ -134,7 +137,7 @@ export default function App() {
       }
     };
 
-    worker.postMessage({ type: "init", basePath: import.meta.env.BASE_URL });
+    worker.postMessage({ type: "init", wasmUrl: getWasmScriptUrl() });
   };
 
   useEffect(() => {

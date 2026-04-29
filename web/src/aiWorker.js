@@ -1,27 +1,31 @@
 let wasmPromise = null;
-let baseUrl = "/";
+let wasmScriptUrl = null;
 
 const ensureWasm = async () => {
   if (!wasmPromise) {
-    importScripts(`${baseUrl}wasm/tablut_wasm.js`);
+    if (!wasmScriptUrl) {
+      throw new Error("WASM script URL not initialized");
+    }
+    importScripts(wasmScriptUrl);
     const createModule = self.createTablutModule;
     if (!createModule) {
       throw new Error("createTablutModule not found in worker");
     }
+    const wasmBaseUrl = new URL(".", wasmScriptUrl).toString();
     wasmPromise = createModule({
-      locateFile: (path) => `${baseUrl}wasm/${path}`,
-      mainScriptUrlOrBlob: new URL(`${baseUrl}wasm/tablut_wasm.js`, location.href).toString(),
+      locateFile: (path) => new URL(path, wasmBaseUrl).toString(),
+      mainScriptUrlOrBlob: wasmScriptUrl,
     });
   }
   return wasmPromise;
 };
 
 self.onmessage = async (event) => {
-  const { type, requestId, board, turn, difficulty, basePath } = event.data || {};
+  const { type, requestId, board, turn, difficulty, wasmUrl } = event.data || {};
 
   if (type === "init") {
-    if (typeof basePath === "string" && basePath.length > 0) {
-      baseUrl = basePath.endsWith("/") ? basePath : `${basePath}/`;
+    if (typeof wasmUrl === "string" && wasmUrl.length > 0) {
+      wasmScriptUrl = wasmUrl;
     }
     try {
       await ensureWasm();
