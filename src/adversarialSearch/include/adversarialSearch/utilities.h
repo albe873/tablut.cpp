@@ -5,6 +5,7 @@
 #include <thread>
 #include <condition_variable>
 #include <string>
+#include <cstdint>
 
 #ifndef UTILITIES_H
 #define UTILITIES_H
@@ -31,21 +32,21 @@ public:
 class SimpleMetrics {
 private:
     std::mutex mtx;
-    u_int maxDepth;
-    u_long nodesExpanded;
-    u_int tt_miss;
-    u_int tt_hit;
+    uint32_t maxDepth;
+    uint64_t nodesExpanded;
+    uint32_t tt_miss;
+    uint32_t tt_hit;
 public:
     SimpleMetrics();
     void reset();
     void incrementNodesExpanded();
-    void updateMaxDepth(u_int depth);
-    u_int getMaxDepth() const;
-    u_long getNodesExpanded() const;
+    void updateMaxDepth(uint32_t depth);
+    uint32_t getMaxDepth() const;
+    uint64_t getNodesExpanded() const;
     
     // transposition table metrics
-    u_int getTTMiss() const;
-    u_int getTTHit() const;
+    uint32_t getTTMiss() const;
+    uint32_t getTTHit() const;
     void incrementTTMiss();
     void incrementTTHit();
     std::string toString() const;

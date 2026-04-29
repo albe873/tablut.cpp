@@ -74,15 +74,15 @@ void SimpleMetrics::reset() {
     tt_hit = 0;
     tt_miss = 0;
 }
-void SimpleMetrics::updateMaxDepth(u_int depth) {
+void SimpleMetrics::updateMaxDepth(uint32_t depth) {
     std::lock_guard<std::mutex> lock(mtx);
     if (depth > maxDepth)
         maxDepth = depth;
 }
-u_int SimpleMetrics::getMaxDepth() const {
+uint32_t SimpleMetrics::getMaxDepth() const {
     return maxDepth;
 }
-u_long SimpleMetrics::getNodesExpanded() const {
+uint64_t SimpleMetrics::getNodesExpanded() const {
     return nodesExpanded;
 }
 void SimpleMetrics::incrementTTMiss() {
@@ -93,10 +93,10 @@ void SimpleMetrics::incrementTTHit() {
     std::lock_guard<std::mutex> lock(mtx);
     tt_hit++;
 }
-u_int SimpleMetrics::getTTMiss() const {
+uint32_t SimpleMetrics::getTTMiss() const {
     return tt_miss;
 }
-u_int SimpleMetrics::getTTHit() const {
+uint32_t SimpleMetrics::getTTHit() const {
     return tt_hit;
 }
 std::string SimpleMetrics::toString() const {

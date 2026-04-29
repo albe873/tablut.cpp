@@ -6,6 +6,7 @@
 #include <mutex>
 #include <stdexcept>
 #include <iostream>
+#include <cstdint>
 
 enum class entry_type {
     exact,
@@ -31,8 +32,8 @@ private:
     static const int preferredSize = 200000000;
     U unknown;
 
-    inline int getIndex(long& hash) {
-        return (u_long) hash % size;
+    inline int getIndex(int64_t hash) {
+        return static_cast<uint64_t>(hash) % size;
     }
 
 public:

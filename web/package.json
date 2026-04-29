@@ -1,0 +1,21 @@
+{
+  "name": "tablut-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/copy-wasm.js && vite",
+    "build": "node scripts/copy-wasm.js && vite build",
+    "preview": "vite preview",
+    "prepare": "node scripts/copy-coi.js"
+  },
+  "dependencies": {
+    "coi-serviceworker": "^0.1.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.0"
+  }
+}

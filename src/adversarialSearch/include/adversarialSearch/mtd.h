@@ -1,7 +1,9 @@
 // mtd.h
 
 #include <set>
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 #include <algorithm>
 #include <vector>
 #include <limits> // Required for numeric_limits
@@ -209,6 +211,14 @@ public:
       quiescence(game, startDepth,
                  [this](const S& s, const P& p){ return this->eval(s, p); },
                  [this](const S& s, const P& p, const int& d){ return this->evalTerminal(s, p, d); }) // Setup quiescence if used
+    {}
+
+    // Constructor with transposition table size
+    mtd(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds, int tableSize)
+    : game(game), startDepthLimit(startDepth), timer(maxTimeSeconds), table(tableSize, game.util_unknown),
+        quiescence(game, startDepth,
+                                [this](const S& s, const P& p){ return this->eval(s, p); },
+                                [this](const S& s, const P& p, const int& d){ return this->evalTerminal(s, p, d); })
     {}
 
     virtual pair<A, U> makeDecision(S state) {

@@ -1,3 +1,8 @@
 
 /build
 .vscode/settings.json
+/.vscode
+/build-wasm
+/web/node_modules
+web/package-lock.json
+/web/public
