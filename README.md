@@ -39,8 +39,11 @@ defaults: WHITE 60 localhost
 server project: https://github.com/AGalassi/TablutCompetition
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ## 🏁 Tournament Results 🏁
 =======
+=======
+>>>>>>> Stashed changes
 ## Web GUI (React + WebAssembly)
 
 The web UI lives in the `web` folder and loads a WebAssembly build of the C++ engine.
