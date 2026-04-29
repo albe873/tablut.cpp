@@ -303,14 +303,15 @@ export default function App() {
 
     const loadWasm = async () => {
       try {
-        await loadScript("/wasm/tablut_wasm.js");
+        const wasmScriptUrl = getWasmScriptUrl();
+        await loadScript(wasmScriptUrl);
         const createModule = globalThis.createTablutModule;
         if (!createModule) {
           throw new Error("createTablutModule not found on window");
         }
         const instance = await createModule({
-          locateFile: (path) => `/wasm/${path}`,
-          mainScriptUrlOrBlob: new URL("/wasm/tablut_wasm.js", window.location.href).toString(),
+          locateFile: (path) => new URL(path, new URL(".", wasmScriptUrl)).toString(),
+          mainScriptUrlOrBlob: wasmScriptUrl,
         });
         if (!isMounted) return;
         setWasm(instance);
