@@ -366,15 +366,14 @@ export default function App() {
         <div>
           <h1>Tablut.cpp web</h1>
           <div className="hero-meta">
-            <span className="subtitle">Play against engine compiled to WebAssembly.</span>
-            <span className="hero-sep">|</span>
+            <span className="subtitle">Play against the AI engine.</span>
             <a
               className="rules-link"
               href="https://en.wikipedia.org/wiki/Tafl_games#Tablut"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Rules and other information about Tablut
+              Rules and info about Tablut
             </a>
           </div>
         </div>
