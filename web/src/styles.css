@@ -335,7 +335,7 @@ button.active {
   padding: 1vmin;
   border-radius: 3vmin;
   box-shadow: 0 1vmin 2vmin rgba(31, 29, 26, 0.2);
-  width: 100%;
+  width: min(100%, 90vmin);
 }
 
 /* ------ Cells ------ */ 
@@ -360,7 +360,7 @@ button.active {
 
 .cell.selected {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2vmin var(--accent-soft);
+  box-shadow: 0 0 0 0.3vmin var(--accent-soft);
 }
 
 .cell.move::after {
