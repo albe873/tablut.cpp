@@ -8,6 +8,8 @@ To declare the winner, is held a tournament with round-trip matches.
 
 Is also present a react webapp to play against the AI, hosted on github pages: https://albe873.github.io/tablut.cpp/ 
 
+![webapp screenshot](webapp.png)
+
 ## Adopted solution and strategy
 
 My focus was on using search algorithms in the most efficient way, so I went with:
