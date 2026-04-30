@@ -152,20 +152,14 @@ inline void State::calculateZobrist() {
         for (int x = 0; x < size; x++)
             if (board[y][x] != Piece::Empty)
                 hash_value ^= zobrist_table[y][x][static_cast<int>(board[y][x])];
-    // turn
-    hash_value ^= zobrist_turn[static_cast<int>(turn)];
 }
 
 inline void State::updateZobristPiece(const cord& c, const Piece& piece) {
     hash_value ^= zobrist_table[c.y][c.x][static_cast<int>(piece)];
 }
-inline void State::updateZobristTurn(const Turn& oldTurn, const Turn& newTurn) {
-    hash_value ^= zobrist_turn[static_cast<int>(oldTurn)];
-    hash_value ^= zobrist_turn[static_cast<int>(newTurn)];
-}
 
 long State::hash() const {
-    return hash_value;
+    return hash_value ^ zobrist_turn[static_cast<int>(turn)];
 }
 
 
@@ -179,7 +173,6 @@ Turn State::getTurn() const {
 }
 
 void State::setTurn(Turn newTurn) {
-    updateZobristTurn(turn, newTurn);
     turn = newTurn;
 }
 
@@ -314,5 +307,5 @@ bool State::equals(const State& other) const {
 
 // Hash only the board, to use for History
 int State::softHash() const {
-    return (int)(hash_value);
+    return (int)(hash_value ^ zobrist_turn[static_cast<int>(turn)]);
 }
