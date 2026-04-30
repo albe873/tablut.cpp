@@ -352,13 +352,18 @@ export default function App() {
     setHumanSide(side);
   };
 
-  const handleStartGame = () => {
+  const startGame = () => {
     if (!wasm) return;
     setGameStarted(true);
     if (turn !== humanSide) {
       maybeTriggerAi(turn);
     }
   };
+
+  const restartGame = () => {
+    resetGame();
+    startGame();
+  }
 
   return (
     <div className="page">
@@ -435,7 +440,7 @@ export default function App() {
             <button
               type="button"
               className="primary-action"
-              onClick={handleStartGame}
+              onClick={startGame}
               disabled={gameStarted}
             >
               {gameStarted ? "Game started" : "Play"}
@@ -536,7 +541,7 @@ export default function App() {
             <h2>{gameOverMessage}</h2>
             <p>Play again or review the final position on the board.</p>
             <div className="modal-actions">
-              <button type="button" onClick={resetGame}>
+              <button type="button" className="primary-action" onClick={restartGame}>
                 Play again
               </button>
               <button type="button" onClick={() => setGameOver(false)}>

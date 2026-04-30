@@ -306,12 +306,12 @@ button.active {
 }
 
 /* ------ Board ------ */ 
+
 .board-wrap {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 3%;
   align-items: start;
-  padding: 1vmin;
 }
 
 .board-paused .board {
@@ -332,6 +332,12 @@ button.active {
   border-radius: 3vmin;
   box-shadow: 0 1vmin 2vmin rgba(31, 29, 26, 0.2);
   width: min(100%, 90vmin);
+}
+
+@media (max-width: 900px) {
+  .board-wrap {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ------ Cells ------ */ 
@@ -507,10 +513,4 @@ button.active {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
-}
-
-@media (max-width: 900px) {
-  .board-wrap {
-    grid-template-columns: 1fr;
-  }
 }
