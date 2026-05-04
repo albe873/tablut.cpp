@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { minify } from 'terser';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,6 +15,24 @@ if (!fs.existsSync(src)) {
   process.exit(1);
 }
 
-fs.mkdirSync(destDir, { recursive: true });
-fs.copyFileSync(src, dest);
-console.log("Copied coi-serviceworker.js to public/");
+async function main() {
+  const source = fs.readFileSync(src, "utf8");
+  const result = await minify(source, {
+    compress: {
+      drop_console: false,
+      drop_debugger: true,
+    },
+    format: {
+      comments: false,
+    },
+  });
+
+  fs.mkdirSync(destDir, { recursive: true });
+  fs.writeFileSync(dest, result.code);
+  console.log("Copied and minified coi-serviceworker.js to public/");
+}
+
+main().catch((error) => {
+  console.error("Failed to copy coi-serviceworker.js:", error);
+  process.exit(1);
+});

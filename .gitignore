@@ -5,6 +5,7 @@
 /build-wasm
 /web/node_modules
 web/package-lock.json
-/web/public
 /web/.vite
 /web/dist
+/web/public/wasm
+web/public/coi-serviceworker.js

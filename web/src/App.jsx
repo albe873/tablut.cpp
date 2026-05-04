@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, memo } from "react";
 
 const SIZE = 9;
 const TURN = {
@@ -32,6 +32,8 @@ const THRONE = { x: 4, y: 4 };
 
 const idx = (x, y) => y * SIZE + x;
 const isCamp = (x, y) => CAMPS_MASK[y]?.[x];
+const cellLabel = (x, y) => `${String.fromCharCode(65 + x)}${y + 1}`;
+const fileLabels = Array.from({ length: SIZE }, (_, index) => String.fromCharCode(65 + index));
 
 const turnLabel = (turn) => {
   if (turn === TURN.WHITE) return "White to move";
@@ -44,6 +46,31 @@ const turnLabel = (turn) => {
 
 const isTerminalTurn = (turn) =>
   turn === TURN.WHITE_WIN || turn === TURN.BLACK_WIN || turn === TURN.DRAW;
+
+const BoardCell = memo(({ x, y, piece, isSelected, isMove, isThrone, isCamp, onClick }) => (
+  <button
+    className={`cell ${
+      isCamp ? "camp" : ""
+    } ${isThrone ? "throne" : ""} ${
+      isSelected ? "selected" : ""
+    } ${isMove ? "move" : ""}`}
+    title={cellLabel(x, y)}
+    onClick={() => onClick(x, y)}
+    type="button"
+  >
+    {piece !== PIECE.EMPTY && (
+      <span className={`piece ${
+        piece === PIECE.BLACK
+          ? "black"
+          : piece === PIECE.WHITE
+          ? "white"
+          : "king"
+      }`}>
+        {piece === PIECE.KING ? "K" : ""}
+      </span>
+    )}
+  </button>
+));
 
 export default function App() {
   const [wasm, setWasm] = useState(null);
@@ -73,7 +100,8 @@ export default function App() {
   );
 
   const getWasmScriptUrl = () =>
-    new URL(`wasm/tablut_wasm.js`, `${window.location.origin}${import.meta.env.BASE_URL}`).toString();
+    // ensure the returned URL is safely encoded to avoid malformed request paths
+    encodeURI(new URL(`wasm/tablut_wasm.js`, `${window.location.origin}${import.meta.env.BASE_URL}`).toString());
 
   const readBoard = (mod, state) => {
     const list = mod.getBoard(state);
@@ -242,7 +270,7 @@ export default function App() {
     }
   };
 
-  const handleCellClick = async (x, y) => {
+  const handleCellClick = useCallback(async (x, y) => {
     if (!wasm || !stateRef.current) return;
     if (thinking) return;
     if (isTerminalTurn(turn)) return;
@@ -276,14 +304,15 @@ export default function App() {
     const moves = getMovesForPiece(wasm, stateRef.current, x, y);
     setSelected({ x, y });
     setPossibleMoves(moves);
-  };
+  }, [wasm, thinking, turn, humanSide, possibleMoves, selected, board]);
 
   useEffect(() => {
     let isMounted = true;
 
     const loadScript = (url) =>
       new Promise((resolve, reject) => {
-        const existing = document.querySelector(`script[src="${url}"]`);
+        const safeUrl = encodeURI(String(url));
+        const existing = document.querySelector(`script[src="${safeUrl}"]`);
         if (existing) {
           existing.addEventListener("load", resolve, { once: true });
           existing.addEventListener("error", reject, { once: true });
@@ -291,7 +320,7 @@ export default function App() {
           return;
         }
         const script = document.createElement("script");
-        script.src = url;
+        script.src = safeUrl;
         script.async = true;
         script.onload = () => {
           script.dataset.loaded = "true";
@@ -345,25 +374,25 @@ export default function App() {
     }
   }, [humanSide, gameStarted]);
 
-  const handleSideChange = (side) => {
+  const handleSideChange = useCallback((side) => {
     if (side === humanSide) return;
     // Prevent changing side while a game is in progress
     if (gameStartedRef.current) return;
     setHumanSide(side);
-  };
+  }, [humanSide]);
 
-  const startGame = () => {
+  const startGame = useCallback(() => {
     if (!wasm) return;
     setGameStarted(true);
     if (turn !== humanSide) {
       maybeTriggerAi(turn);
     }
-  };
+  }, [wasm, turn, humanSide]);
 
-  const restartGame = () => {
+  const restartGame = useCallback(() => {
     resetGame();
     startGame();
-  }
+  }, []);
 
   return (
     <div className="page">
@@ -386,9 +415,10 @@ export default function App() {
 
       <section className="controls">
         <div className="control">
-          <label>Difficulty (ai thinking seconds)</label>
+          <label htmlFor="difficulty-range">Difficulty (ai thinking seconds)</label>
           <div className="control-row">
             <input
+              id="difficulty-range"
               type="range"
               min="5"
               max="60"
@@ -396,6 +426,7 @@ export default function App() {
               onChange={(e) => setDifficulty(Number(e.target.value))}
             />
             <input
+              aria-label="Difficulty in AI thinking seconds"
               type="number"
               min="5"
               max="60"
@@ -453,39 +484,46 @@ export default function App() {
       </section>
 
       <section className={`board-wrap ${gameStarted ? "" : "board-paused"}`}>
-        <div className="board">
-          {board.map((piece, i) => {
-            const x = i % SIZE;
-            const y = Math.floor(i / SIZE);
-            const isSelected = selected && selected.x === x && selected.y === y;
-            const isMove = possibleMoves.some((m) => m.x === x && m.y === y);
-            const isThrone = THRONE.x === x && THRONE.y === y;
+        <div className="board-shell">
+          <div className="row-labels" aria-hidden="true">
+            {Array.from({ length: SIZE }, (_, index) => (
+              <span key={index} className="axis-label row-label">
+                {index + 1}
+              </span>
+            ))}
+          </div>
 
-            return (
-              <button
-                key={`${x}-${y}`}
-                className={`cell ${
-                  isCamp(x, y) ? "camp" : ""
-                } ${isThrone ? "throne" : ""} ${
-                  isSelected ? "selected" : ""
-                } ${isMove ? "move" : ""}`}
-                onClick={() => handleCellClick(x, y)}
-                type="button"
-              >
-                {piece !== PIECE.EMPTY && (
-                  <span className={`piece ${
-                    piece === PIECE.BLACK
-                      ? "black"
-                      : piece === PIECE.WHITE
-                      ? "white"
-                      : "king"
-                  }`}>
-                    {piece === PIECE.KING ? "K" : ""}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+          <div className="board">
+            {board.map((piece, i) => {
+              const x = i % SIZE;
+              const y = Math.floor(i / SIZE);
+              const isSelected = selected && selected.x === x && selected.y === y;
+              const isMove = possibleMoves.some((m) => m.x === x && m.y === y);
+              const isThrone = THRONE.x === x && THRONE.y === y;
+
+              return (
+                <BoardCell
+                  key={`${x}-${y}`}
+                  x={x}
+                  y={y}
+                  piece={piece}
+                  isSelected={isSelected}
+                  isMove={isMove}
+                  isThrone={isThrone}
+                  isCamp={isCamp(x, y)}
+                  onClick={handleCellClick}
+                />
+              );
+            })}
+          </div>
+
+          <div className="col-labels" aria-hidden="true">
+            {fileLabels.map((label) => (
+              <span key={label} className="axis-label col-label">
+                {label}
+              </span>
+            ))}
+          </div>
         </div>
 
         <aside className="legend">

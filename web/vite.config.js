@@ -24,4 +24,30 @@ export default defineConfig({
       "Cross-Origin-Embedder-Policy": "require-corp",
     },*/
   },
+  build: {
+    minify: "terser",
+    terserOptions: {
+      compress: {
+        drop_console: false,
+        drop_debugger: true,
+      },
+      format: {
+        comments: false,
+      },
+    },
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) {
+            return "react";
+          }
+        },
+        chunkFileNames: "js/[name]-[hash].js",
+        entryFileNames: "js/[name]-[hash].js",
+        assetFileNames: "[ext]/[name]-[hash].[ext]",
+      },
+    },
+    cssCodeSplit: true,
+    sourcemap: false,
+  },
 });
