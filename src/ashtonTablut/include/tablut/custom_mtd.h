@@ -1,4 +1,3 @@
-#include <adversarialSearch/ite_minmax_ptt.h>
 #include <adversarialSearch/mtd.h>
 #include <algorithm>
 #include <vector>
@@ -77,6 +76,9 @@ protected:
 public:
     custom_mtd(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds)
         : mtd<S, A, P, U>(game, startDepth, maxTimeSeconds) {}
+
+    custom_mtd(const VGame<S, A, P, U>& game, int startDepth, int maxTimeSeconds, int tableSize)
+        : mtd<S, A, P, U>(game, startDepth, maxTimeSeconds, tableSize) {}
 
 
 

@@ -13,12 +13,13 @@ target_include_directories(tablut_wasm PRIVATE
     ${CMAKE_SOURCE_DIR}/src/ashtonTablut/include
 )
 
-target_compile_options(tablut_wasm PRIVATE -O3 -pthread)
+target_compile_options(tablut_wasm PRIVATE -O3 -flto -pthread)
 
 target_compile_definitions(tablut_wasm PRIVATE ENABLE_METRICS)
 
 target_link_options(tablut_wasm PRIVATE
     "SHELL:--bind"
+    "SHELL:-flto"
     "SHELL:-sWASM=1"
     "SHELL:-sMODULARIZE=1"
     "SHELL:-sENVIRONMENT=web,worker"
@@ -26,10 +27,6 @@ target_link_options(tablut_wasm PRIVATE
     "SHELL:-sUSE_PTHREADS=1"
     "SHELL:-sPTHREAD_POOL_SIZE=4"
     "SHELL:-sEXPORT_NAME=createTablutModule"
-    "SHELL:-sASSERTIONS=1"
-    "SHELL:-sSTACK_OVERFLOW_CHECK=2"
-    "SHELL:-sDISABLE_EXCEPTION_CATCHING=0"
-    "SHELL:-pthread"
 )
 
 target_compile_options(tablut_wasm PRIVATE -fexceptions)

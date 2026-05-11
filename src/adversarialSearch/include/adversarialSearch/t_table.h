@@ -16,7 +16,7 @@ enum class entry_type {
 
 template <typename U, typename A>
 struct tt_entry {
-    long hash;
+    int64_t hash;
     entry_type type;
     int depth;
     U score;

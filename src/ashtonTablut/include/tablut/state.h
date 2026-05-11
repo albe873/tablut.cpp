@@ -39,9 +39,9 @@ private:
     cord kingPos;
 
     // Zobrist hashing
-    long hash_value;
-    static long zobrist_table[9][9][4];
-    static long zobrist_turn[5];
+    int64_t hash_value;
+    static int64_t zobrist_table[9][9][4];
+    static int64_t zobrist_turn[5];
     void initZobrist();
     void calculateZobrist();
     void updateZobristPiece(const cord& c, const Piece& piece);
@@ -98,7 +98,7 @@ public:
 
     bool equals(const State& other) const;
     int softHash() const;
-    long hash() const;
+    int64_t hash() const;
 };
 
 #endif // STATE_H

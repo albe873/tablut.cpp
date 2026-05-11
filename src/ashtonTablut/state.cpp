@@ -121,8 +121,8 @@ State::State(const Piece (&board)[size][size], Turn turn)
 
 // ------ Zobrist hashing ------
 
-long State::zobrist_table[State::size][State::size][4];
-long State::zobrist_turn[5];
+int64_t State::zobrist_table[State::size][State::size][4];
+int64_t State::zobrist_turn[5];
 
 inline void State::initZobrist() {
     static bool initialized = false;    // remain between calls
@@ -158,7 +158,7 @@ inline void State::updateZobristPiece(const cord& c, const Piece& piece) {
     hash_value ^= zobrist_table[c.y][c.x][static_cast<int>(piece)];
 }
 
-long State::hash() const {
+int64_t State::hash() const {
     return hash_value ^ zobrist_turn[static_cast<int>(turn)];
 }
 
