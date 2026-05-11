@@ -21,7 +21,7 @@ const ensureWasm = async () => {
 };
 
 self.onmessage = async (event) => {
-  const { type, requestId, board, turn, difficulty, wasmUrl } = event.data || {};
+  const { type, requestId, board, turn, difficulty, tableSize, wasmUrl } = event.data || {};
 
   if (type === "init") {
     if (typeof wasmUrl === "string" && wasmUrl.length > 0) {
@@ -57,9 +57,10 @@ self.onmessage = async (event) => {
         intList = board;
       }
       const state = wasm.createStateFromBoard(intList, turn);
-      const moveWithMetrics = wasm.aiBestMoveWithMetrics(state, difficulty);
+      const moveWithMetrics = wasm.aiBestMoveWithMetrics(state, difficulty, tableSize);
       const move = moveWithMetrics.move;
       const metrics = moveWithMetrics.metrics;
+      const utility = moveWithMetrics.utility;
       const from = move.getFrom();
       const to = move.getTo();
       if (move.delete) {
@@ -78,6 +79,7 @@ self.onmessage = async (event) => {
           from: { x: from.x, y: from.y },
           to: { x: to.x, y: to.y },
           metrics,
+          utility,
         },
       });
     } finally {

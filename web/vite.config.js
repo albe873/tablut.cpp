@@ -42,9 +42,9 @@ export default defineConfig({
             return "react";
           }
         },
-        chunkFileNames: "js/[name]-[hash].js",
-        entryFileNames: "js/[name]-[hash].js",
-        assetFileNames: "[ext]/[name]-[hash].[ext]",
+        chunkFileNames: "js/[hash].js",
+        entryFileNames: "js/[hash].js",
+        assetFileNames: "[ext]/[hash].[ext]",
       },
     },
     cssCodeSplit: true,

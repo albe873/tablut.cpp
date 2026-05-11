@@ -43,13 +43,6 @@ body {
   justify-content: space-between;
 }
 
-.eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.75rem;
-  margin: 0 0 0.5rem;
-}
-
 h1 {
   font-size: clamp(2rem, 3.5vw, 3.4rem);
   margin: 0;
@@ -70,14 +63,22 @@ h1 {
 }
 
 .rules-link {
+  border: none;
+  background: none;
+  padding: 0;
   color: rgba(31, 29, 26, 0.75);
   text-decoration: none;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .rules-link:hover {
   color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 3px;
+  transform: none;
+  box-shadow: none;
 }
 
 
@@ -88,11 +89,6 @@ h1 {
   border-radius: 18px;
   min-width: 220px;
   box-shadow: 0 10px 24px rgba(31, 29, 26, 0.12);
-}
-
-.status-inline {
-  min-width: unset;
-  margin-bottom: 0.75rem;
 }
 
 .status-label {
@@ -108,64 +104,25 @@ h1 {
   margin-top: 0.35rem;
 }
 
-.status-sub {
-  margin-top: 0.5rem;
-  color: rgba(31, 29, 26, 0.7);
+/* ------ Legend Metrics ------ */
+.legend-metrics {
+  margin-top: 0.45rem;
+  padding-top: 0.35rem;
+  display: grid;
+  gap: 0.2rem;
 }
 
-/* ------ Metrics Card ------ */
-.metrics-card {
-  background: var(--bg-accent);
-  padding: 0;
-  border-radius: 18px;
-  margin-bottom: 0.75rem;
-  box-shadow: 0 10px 24px rgba(31, 29, 26, 0.12);
-  overflow: hidden;
-}
-
-.metrics-toggle {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  padding: 1.25rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 600;
-  color: var(--ink);
-  text-align: left;
-  transition: background-color 0.2s ease;
-}
-
-.metrics-toggle:hover {
-  background-color: rgba(31, 29, 26, 0.05);
-}
-
-.metrics-label {
-  font-size: 0.95rem;
+.legend-metrics-title {
+  font-size: 0.66rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: rgba(31, 29, 26, 0.85);
+  letter-spacing: 0.11em;
+  color: rgba(31, 29, 26, 0.56);
 }
 
-.metrics-arrow {
-  font-size: 0.8rem;
-  color: rgba(31, 29, 26, 0.5);
-  transition: transform 0.2s ease;
-  display: inline-block;
-}
-
-.metrics-content {
-  background: rgba(31, 29, 26, 0.03);
-  padding: 0 1.5rem;
-  border-top: 1px solid rgba(31, 29, 26, 0.1);
-}
-
-.metric-item {
-  font-size: 0.8rem;
-  color: rgba(31, 29, 26, 0.8);
-  padding: 0.5rem 0;
+.legend-metric-item {
+  font-size: 0.68rem;
+  line-height: 1.15;
+  color: rgba(31, 29, 26, 0.72);
 }
 
 .controls {
@@ -185,12 +142,19 @@ h1 {
   display: block;
   font-weight: 600;
   margin-bottom: 0.6rem;
+  margin-top: 1rem;
 }
 
 .control-row {
   display: flex;
   gap: 0.75rem;
   align-items: center;
+}
+
+.control-value {
+  margin-left: 0.5rem;
+  width: 6rem;
+  font-size: 0.6rem;
 }
 
 /* ------ Inputs ------ */
@@ -271,7 +235,7 @@ button.active {
 }
 
 .play-button.active {
-  box-shadow: 0 0 0 2px rgba(212, 85, 63, 0.35);
+  box-shadow: 0 0 0 3px rgba(212, 85, 63, 0.4);
 }
 
 .play-chip {
@@ -289,15 +253,6 @@ button.active {
 .play-chip.black {
   background: var(--black);
   border-color: rgba(255, 255, 255, 0.3);
-}
-
-.play-selected {
-  margin-top: 0.6rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  color: rgba(31, 29, 26, 0.7);
 }
 
 /* ------ Board ------ */ 
@@ -413,14 +368,14 @@ button.active {
   height: 40%;
   border-radius: 999px;
   background: var(--accent);
-  opacity: 0.75;
+  opacity: 0.5;
 }
 
 
 /* ------ Pieces ------ */ 
 .piece {
-  width:  90%;
-  height: 90%;
+  width:  100%;
+  height: 100%;
   border-radius: 999px;
   display: grid;
   place-items: center;
@@ -458,42 +413,6 @@ button.active {
   margin: 0 0 0.5rem;
 }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.legend-item .piece {
-  width: 22px;
-  height: 22px;
-  font-size: 0.75rem;
-}
-
-.camp-chip,
-.throne-chip {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.camp-chip::before,
-.throne-chip::before {
-  content: "";
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
-  margin-right: 0.5rem;
-}
-
-.camp-chip::before {
-  background: var(--camp);
-}
-
-.throne-chip::before {
-  background: var(--throne);
-}
-
 /* ------ Footer ------ */
 .footer {
   font-size: 0.5rem;
@@ -524,6 +443,8 @@ button.active {
   place-items: center;
   z-index: 10;
   padding: 1.5rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .modal {
@@ -555,4 +476,38 @@ button.active {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+.rules-modal {
+  max-width: 680px;
+  max-height: min(85vh, 760px);
+  overflow-y: auto;
+}
+
+.rules-modal h3 {
+  margin: 0.4rem 0 0.35rem;
+  font-size: 1rem;
+}
+
+.rules-modal p {
+  margin: 0.2rem 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.rules-modal ul {
+  margin: 0.3rem 0 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.rules-modal li {
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.rules-note {
+  margin-top: 0.6rem;
+  color: rgba(31, 29, 26, 0.66);
 }

@@ -6,7 +6,7 @@
 #include <tablut/actions.h>
 #include <tablut/result.h>
 #include <tablut/heuristics.h>
-#include <adversarialSearch/mtd.h>
+#include <tablut/custom_mtd.h>
 
 using emscripten::register_vector;
 
@@ -83,21 +83,20 @@ State createStateFromBoard(const std::vector<int>& flatBoard, int turn) {
 struct MoveWithMetrics {
     Move move;
     std::string metrics;
+    int utility;
 };
 
-Move aiBestMove(const State& state, int maxTimeSeconds) {
+Move aiBestMove(const State& state, int maxTimeSeconds, int tableSize) {
     const Game& game = getGame();
-    const int tableSize = 2000000;
-    mtd<State, Move, Turn, int> search(game, 3, maxTimeSeconds, tableSize);
+    custom_mtd<State, Move, Turn, int> search(game, 2, maxTimeSeconds, tableSize);
     return search.makeDecision(state).first;
 }
 
-MoveWithMetrics aiBestMoveWithMetrics(const State& state, int maxTimeSeconds) {
+MoveWithMetrics aiBestMoveWithMetrics(const State& state, int maxTimeSeconds, int tableSize) {
     const Game& game = getGame();
-    const int tableSize = 2000000;
-    mtd<State, Move, Turn, int> search(game, 3, maxTimeSeconds, tableSize);
+    custom_mtd<State, Move, Turn, int> search(game, 2, maxTimeSeconds, tableSize);
     auto [move, utility] = search.makeDecision(state);
-    return {move, search.getMetrics()};
+    return {move, search.getMetrics(), utility};
 }
 
 } // namespace wasm_api
@@ -120,7 +119,8 @@ EMSCRIPTEN_BINDINGS(tablut_bindings) {
 
     emscripten::value_object<wasm_api::MoveWithMetrics>("MoveWithMetrics")
         .field("move", &wasm_api::MoveWithMetrics::move)
-        .field("metrics", &wasm_api::MoveWithMetrics::metrics);
+        .field("metrics", &wasm_api::MoveWithMetrics::metrics)
+        .field("utility", &wasm_api::MoveWithMetrics::utility);
 
     register_vector<Move>("MoveList");
     register_vector<int>("IntList");
