@@ -28,7 +28,7 @@ mkdir build && cd build
 ```
 build the project with cmake
 ```
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 then you can find the binaries in ./src/client

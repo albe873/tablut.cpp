@@ -1,5 +1,3 @@
-find_package(Emscripten)
-
 if(NOT EMSCRIPTEN)
     message(STATUS "Skipping wasm target: Emscripten not detected")
     return()
